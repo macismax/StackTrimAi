@@ -1,32 +1,25 @@
-"""StackTrim static site — stdlib WSGI (no Flask required at import time)."""
-import mimetypes
+"""StackTrim — Flask app for Vercel / Railway / Render (must assign app = Flask(...))."""
 import os
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+from flask import Flask, send_from_directory
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+
+app = Flask(__name__)
 
 
-def _file_response(path_info: str):
-    rel = (path_info or "/").lstrip("/") or "index.html"
-    safe = os.path.normpath(os.path.join(ROOT, rel))
-    if not safe.startswith(ROOT):
-        safe = os.path.join(ROOT, "index.html")
-    if not os.path.isfile(safe):
-        safe = os.path.join(ROOT, "index.html")
-    with open(safe, "rb") as f:
-        body = f.read()
-    mime, _ = mimetypes.guess_type(safe)
-    return body, mime or "text/html; charset=utf-8"
+@app.route("/")
+def index():
+    return send_from_directory(HERE, "index.html")
 
 
-def app(environ, start_response):
-    body, content_type = _file_response(environ.get("PATH_INFO", "/"))
-    start_response(
-        "200 OK",
-        [("Content-Type", content_type), ("Content-Length", str(len(body)))],
-    )
-    return [body]
+@app.route("/<path:filename>")
+def static_files(filename):
+    path = os.path.join(HERE, filename)
+    if os.path.isfile(path):
+        return send_from_directory(HERE, filename)
+    return send_from_directory(HERE, "index.html")
 
 
-# Hosts look for any of these names at module level
 application = app
 handler = app
