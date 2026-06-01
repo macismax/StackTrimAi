@@ -592,7 +592,7 @@
     </main>
 
     <footer class="footer">
-      StackTrim MVP saves data only in your browser using localStorage. This version has no accounts, no external AI calls, and no real payment processing yet — paid features are presented as product positioning only.
+      StackTrim MVP saves data only in your browser using localStorage. This version has no accounts, no bank connection yet, no external AI calls, and no real payment processing yet — paid features are presented as product positioning only.
     </footer>
   </div>
 
@@ -870,7 +870,7 @@
       document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
       document.getElementById(`tab-${tab}`).classList.add('active');
 
-      const tabs = ['dashboard', 'add', 'audit', 'alternatives', 'report'];
+      const tabs = ['dashboard', 'add', 'bulk', 'audit', 'alternatives', 'report'];
       document.querySelectorAll('nav button').forEach((button, index) => {
         button.classList.toggle('active', tabs[index] === tab);
       });
@@ -1022,6 +1022,24 @@
           </div>
         </div>
 
+        <div class="card" style="border-color: var(--purple-text);">
+          <h3 style="font-size:15px;margin-bottom:8px;"><i class="ti ti-building-bank"></i> Bank import roadmap</h3>
+          <div class="section-sub">The best paid version should connect to a bank securely and auto-detect recurring charges. That requires a real backend plus a bank-link provider like Plaid, Teller, Finicity, or MX — not a frontend-only file. For this MVP, keep it safer: paste charges or upload a CSV export.</div>
+          <div class="pro-list" style="margin-top:12px;">
+            <div><strong>Now</strong><br>Paste bank charges or upload a CSV from your bank/card app.</div>
+            <div><strong>Paid v2</strong><br>Connect bank, detect recurring charges, and refresh monthly.</div>
+            <div><strong>Why people pay</strong><br>No manual typing, no hunting through statements, instant audit.</div>
+            <div><strong>Trust note</strong><br>Never ask for bank passwords directly. Use a trusted bank-link provider.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px;margin-bottom:8px;"><i class="ti ti-file-spreadsheet"></i> Upload CSV export</h3>
+          <div class="section-sub">Export transactions from your bank, Apple Card, Cash App, PayPal, or credit card as CSV, then upload it here. StackTrim will scan the text for likely subscriptions. This stays in the browser.</div>
+          <input type="file" id="csv-file" accept=".csv,.txt" style="margin-top:12px;width:100%;" onchange="handleCsvUpload(event)">
+          <div class="bulk-help">Tip: CSV support works best when each row includes a merchant/description and amount.</div>
+        </div>
+
         <div class="card">
           <h3 style="font-size:15px;margin-bottom:8px;">Paste charges or subscription list</h3>
           <div class="section-sub">Works with lines like <strong>NETFLIX.COM 22.99</strong>, <strong>Spotify, 11.99</strong>, or <strong>DoorDash DashPass - $9.99</strong>. You can also include usage/pain if you know it.</div>
@@ -1037,6 +1055,29 @@
           <div id="bulk-preview"></div>
         </div>
       `;
+    }
+
+    function handleCsvUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || '');
+        const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        const useful = lines
+          .filter(line => /\d+\.\d{2}/.test(line))
+          .slice(0, 200)
+          .map(line => {
+            // Turn CSV commas into readable spaces, then let the normal parser do the work.
+            return line.replace(/"/g, '').replace(/,/g, ' ');
+          })
+          .join('\n');
+        const input = document.getElementById('bulk-input');
+        if (input) input.value = useful || text.slice(0, 5000);
+        previewBulkImport();
+        showToast('CSV scanned. Review the detected subscriptions before adding.');
+      };
+      reader.readAsText(file);
     }
 
     function parsePriceFromLine(line) {
