@@ -3,658 +3,1180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StackTrim — Subscription Auditor</title>
+  <meta name="description" content="StackTrim helps you audit subscriptions, find wasted tools, and estimate monthly savings." />
+  <title>StackTrim — Subscription Audit</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
+      color-scheme: light dark;
       --bg: #ffffff;
-      --bg2: #f5f5f2;
-      --bg3: #efefeb;
-      --text: #1a1a18;
-      --text2: #6b6b68;
-      --text3: #a0a09d;
+      --bg2: #f7f7f3;
+      --bg3: #eeeeea;
+      --text: #181816;
+      --text2: #666660;
+      --text3: #9c9c94;
       --border: rgba(0,0,0,0.12);
-      --border2: rgba(0,0,0,0.2);
+      --border2: rgba(0,0,0,0.22);
+      --shadow: 0 10px 35px rgba(0,0,0,0.06);
       --green-bg: #eaf3de; --green-text: #3b6d11;
-      --red-bg: #fcebeb;   --red-text: #a32d2d;
+      --red-bg: #fcebeb; --red-text: #a32d2d;
       --amber-bg: #faeeda; --amber-text: #854f0b;
-      --blue-bg: #e6f1fb;  --blue-text: #185fa5;
-      --radius-md: 8px;
-      --radius-lg: 12px;
+      --blue-bg: #e6f1fb; --blue-text: #185fa5;
+      --purple-bg: #eeedfe; --purple-text: #534ab7;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #1c1c1a;
         --bg2: #252523;
-        --bg3: #2e2e2b;
-        --text: #f0f0ec;
-        --text2: #9a9a95;
-        --text3: #5e5e5a;
-        --border: rgba(255,255,255,0.1);
-        --border2: rgba(255,255,255,0.2);
+        --bg3: #141412;
+        --text: #f1f1ec;
+        --text2: #a7a79f;
+        --text3: #6f6f68;
+        --border: rgba(255,255,255,0.10);
+        --border2: rgba(255,255,255,0.20);
+        --shadow: 0 10px 35px rgba(0,0,0,0.25);
         --green-bg: #173404; --green-text: #97c459;
-        --red-bg: #501313;   --red-text: #f09595;
+        --red-bg: #501313; --red-text: #f09595;
         --amber-bg: #412402; --amber-text: #fac775;
-        --blue-bg: #042c53;  --blue-text: #85b7eb;
+        --blue-bg: #042c53; --blue-text: #85b7eb;
+        --purple-bg: #26215c; --purple-text: #afa9ec;
       }
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg3);
+      background:
+        radial-gradient(circle at top left, rgba(83,74,183,0.12), transparent 30rem),
+        var(--bg3);
       color: var(--text);
       min-height: 100vh;
-      padding: 2rem 1rem 4rem;
+      padding: 1rem 1rem 4rem;
     }
 
-    .app {
-      max-width: 700px;
-      margin: 0 auto;
-    }
+    .app { max-width: 920px; margin: 0 auto; }
 
-    /* Header */
-    .header {
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1.5rem;
+      gap: 1rem;
+      padding: 0.75rem 0;
+      margin-bottom: 0.75rem;
     }
-    .header h1 { font-size: 22px; font-weight: 500; }
-    .header p  { font-size: 13px; color: var(--text2); margin-top: 2px; }
-    .beta { font-size: 11px; background: var(--bg2); color: var(--text2); padding: 3px 10px; border-radius: 20px; }
 
-    /* Nav */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--text);
+      color: var(--bg);
+      font-weight: 700;
+      box-shadow: var(--shadow);
+    }
+
+    .brand h1 { font-size: 19px; font-weight: 650; letter-spacing: -0.02em; }
+    .brand p { font-size: 12px; color: var(--text2); margin-top: 1px; }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .badge-beta { background: var(--purple-bg); color: var(--purple-text); }
+    .badge-keep { background: var(--green-bg); color: var(--green-text); }
+    .badge-cancel { background: var(--red-bg); color: var(--red-text); }
+    .badge-downgrade { background: var(--blue-bg); color: var(--blue-text); }
+    .badge-review { background: var(--amber-bg); color: var(--amber-text); }
+    .badge-muted { background: var(--bg2); color: var(--text2); border: 0.5px solid var(--border); }
+
+    .hero {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: clamp(1.25rem, 4vw, 2.5rem);
+      box-shadow: var(--shadow);
+      margin-bottom: 1rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .hero h2 {
+      font-size: clamp(32px, 6vw, 58px);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      max-width: 650px;
+    }
+
+    .hero p {
+      color: var(--text2);
+      font-size: 15px;
+      line-height: 1.55;
+      margin-top: 1rem;
+      max-width: 560px;
+    }
+
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.25rem; }
+
+    .hero-stat {
+      background: var(--bg2);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      border: 0.5px solid var(--border);
+    }
+    .hero-stat small { color: var(--text2); font-size: 12px; }
+    .hero-stat strong { display: block; font-size: 42px; letter-spacing: -0.05em; margin-top: 0.25rem; color: var(--green-text); }
+    .hero-stat span { color: var(--text2); font-size: 13px; }
+
     nav {
       display: flex;
-      gap: 2px;
+      gap: 4px;
       border-bottom: 0.5px solid var(--border);
-      margin-bottom: 1.5rem;
+      margin: 1rem 0 1.25rem;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
+
+    nav::-webkit-scrollbar { display: none; }
+
     nav button {
-      background: none;
+      background: transparent;
       border: none;
       border-bottom: 2px solid transparent;
-      padding: 8px 16px;
-      font-size: 14px;
+      padding: 10px 14px;
+      font-size: 13px;
       cursor: pointer;
       color: var(--text2);
       margin-bottom: -1px;
       border-radius: 0;
+      white-space: nowrap;
     }
-    nav button.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+    nav button.active {
+      color: var(--text);
+      border-bottom-color: var(--text);
+      font-weight: 650;
+    }
     nav button:hover:not(.active) { color: var(--text); }
 
-    /* Metrics */
     .metric-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 10px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
+
     .metric {
-      background: var(--bg2);
+      background: var(--bg);
+      border: 0.5px solid var(--border);
       border-radius: var(--radius-md);
       padding: 14px 16px;
     }
+
     .metric-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
-    .metric-value { font-size: 22px; font-weight: 500; }
-    .metric-value.spend   { color: var(--red-text); }
+    .metric-value { font-size: 24px; font-weight: 650; letter-spacing: -0.04em; }
+    .metric-value.spend { color: var(--red-text); }
     .metric-value.savings { color: var(--green-text); }
 
-    /* Cards */
     .card {
       background: var(--bg);
       border: 0.5px solid var(--border);
       border-radius: var(--radius-lg);
-      padding: 1.25rem;
+      padding: 1.15rem;
       margin-bottom: 10px;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.025);
     }
 
-    /* Tool row */
+    .section-title {
+      font-size: 16px;
+      font-weight: 650;
+      margin: 1rem 0;
+      letter-spacing: -0.02em;
+    }
+
+    .section-sub {
+      color: var(--text2);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: -0.5rem;
+      margin-bottom: 1rem;
+    }
+
     .tool-row { display: flex; align-items: center; gap: 12px; }
     .tool-icon {
-      width: 38px; height: 38px;
+      width: 40px; height: 40px;
       border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
       font-size: 18px;
       flex-shrink: 0;
     }
+
     .tool-info { flex: 1; min-width: 0; }
-    .tool-name { font-size: 15px; font-weight: 500; }
-    .tool-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
-    .tool-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .tool-cost { font-size: 15px; font-weight: 500; }
+    .tool-name { font-size: 15px; font-weight: 650; overflow-wrap: anywhere; }
+    .tool-meta { font-size: 12px; color: var(--text2); margin-top: 2px; overflow-wrap: anywhere; }
+    .tool-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .tool-cost { font-size: 15px; font-weight: 650; white-space: nowrap; }
 
-    /* Badges */
-    .badge {
-      font-size: 11px; font-weight: 500;
-      padding: 3px 8px; border-radius: 20px; white-space: nowrap;
-    }
-    .badge-keep     { background: var(--green-bg); color: var(--green-text); }
-    .badge-cancel   { background: var(--red-bg);   color: var(--red-text); }
-    .badge-downgrade{ background: var(--blue-bg);  color: var(--blue-text); }
-    .badge-review   { background: var(--bg2);      color: var(--text2); }
-
-    /* Verdict reason */
     .verdict-reason {
-      font-size: 12px; color: var(--text2);
-      margin-top: 8px; padding-top: 8px;
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 10px;
+      padding-top: 10px;
       border-top: 0.5px solid var(--border);
+      line-height: 1.5;
     }
-    .replacement { font-size: 12px; color: var(--blue-text); margin-top: 4px; }
 
-    /* Delete btn */
+    .replacement { font-size: 12px; color: var(--blue-text); margin-top: 5px; line-height: 1.5; }
+
+    .btn {
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 650;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: transform 0.08s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--text); color: var(--bg); }
+    .btn-primary:hover { opacity: 0.86; }
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 0.5px solid var(--border2);
+    }
+    .btn-secondary:hover { background: var(--bg2); }
+    .btn-danger {
+      background: var(--red-bg);
+      color: var(--red-text);
+      border: 0.5px solid rgba(163,45,45,0.25);
+    }
+    .btn-small { padding: 6px 10px; font-size: 12px; }
+
     .btn-delete {
-      background: none; border: none;
-      color: var(--text3); cursor: pointer;
-      font-size: 16px; padding: 4px; border-radius: 4px;
+      background: transparent;
+      border: none;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 17px;
+      padding: 6px;
+      border-radius: 6px;
     }
-    .btn-delete:hover { color: var(--red-text); }
+    .btn-delete:hover { color: var(--red-text); background: var(--red-bg); }
 
-    /* Forms */
     .form-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
     }
+
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group.full { grid-column: 1 / -1; }
-    label { font-size: 13px; font-weight: 500; color: var(--text2); }
+    label { font-size: 13px; font-weight: 650; color: var(--text2); }
 
     input[type="text"],
     input[type="number"],
-    select {
+    select,
+    textarea {
       width: 100%;
       background: var(--bg);
       border: 0.5px solid var(--border2);
-      border-radius: var(--radius-md);
-      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
       font-size: 14px;
       color: var(--text);
       outline: none;
       appearance: none;
     }
-    input:focus, select:focus { border-color: var(--text2); }
-
-    /* Buttons */
-    .btn-primary {
-      background: var(--text);
-      color: var(--bg);
-      border: none;
-      padding: 10px 24px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
+    textarea { resize: vertical; min-height: 84px; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--purple-text);
+      box-shadow: 0 0 0 3px rgba(83,74,183,0.12);
     }
-    .btn-primary:hover { opacity: 0.85; }
-    .btn-secondary {
-      background: none;
-      border: 0.5px solid var(--border2);
-      padding: 9px 20px;
-      border-radius: var(--radius-md);
-      font-size: 14px;
-      cursor: pointer;
-      color: var(--text);
-    }
-    .btn-secondary:hover { background: var(--bg2); }
 
-    /* Misc */
-    .section-title { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
-    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text2); }
-    .empty-state i { font-size: 40px; margin-bottom: 1rem; display: block; color: var(--text3); }
     .tip {
-      font-size: 13px; color: var(--text2);
+      font-size: 13px;
+      color: var(--text2);
       background: var(--blue-bg);
       border-radius: var(--radius-md);
-      padding: 10px 14px; margin-bottom: 1rem;
+      padding: 11px 14px;
+      margin-bottom: 1rem;
+      line-height: 1.45;
     }
-    .savings-hero {
-      background: var(--bg2);
-      border-radius: var(--radius-lg);
-      padding: 2rem; text-align: center;
-      margin-bottom: 1.5rem;
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text2);
     }
-    .savings-big { font-size: 48px; font-weight: 500; color: var(--green-text); }
-    .savings-sub { font-size: 14px; color: var(--text2); margin-top: 4px; }
-    .report-block {
-      font-family: "SF Mono", "Fira Code", monospace;
-      font-size: 13px;
-      background: var(--bg2);
-      border-radius: var(--radius-md);
-      padding: 1.25rem;
-      white-space: pre-wrap;
-      line-height: 1.7;
-    }
+    .empty-state i { font-size: 44px; display: block; margin-bottom: 1rem; color: var(--text3); }
+
     .worst-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 12px 0;
       border-bottom: 0.5px solid var(--border);
     }
     .worst-item:last-child { border-bottom: none; }
 
+    .alt-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .alt-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+    }
+
+    .alt-card h3 {
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .alt-card p {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .alt-tagline { color: var(--green-text); font-size: 12px; font-weight: 650; margin-bottom: 6px; }
+    .alt-list { list-style: none; display: grid; gap: 6px; margin-top: 0.75rem; }
+    .alt-list li { font-size: 12px; color: var(--text2); display: flex; gap: 6px; line-height: 1.4; }
+
+    .report-block {
+      font-family: "SF Mono", "Fira Code", Consolas, monospace;
+      font-size: 13px;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      white-space: pre-wrap;
+      line-height: 1.65;
+      overflow-x: auto;
+    }
+
+    .savings-hero {
+      background: var(--green-bg);
+      color: var(--green-text);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      border: 0.5px solid rgba(59,109,17,0.2);
+    }
+    .savings-big { font-size: 54px; font-weight: 750; letter-spacing: -0.06em; }
+    .savings-sub { font-size: 14px; margin-top: 4px; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text);
+      color: var(--bg);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 50;
+      box-shadow: var(--shadow);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 40;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal {
+      width: min(520px, 100%);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+    }
+    .modal h3 { font-size: 18px; margin-bottom: 0.5rem; }
+    .modal p { color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 1rem; }
+
     .tab { display: none; }
     .tab.active { display: block; }
 
-    @media (max-width: 480px) {
+    .footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 0.5px solid var(--border);
+      color: var(--text3);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 760px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .alt-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      body { padding: 0.75rem 0.75rem 3rem; }
+      .topbar { align-items: flex-start; }
+      .brand h1 { font-size: 17px; }
+      .hero { padding: 1.1rem; }
       .form-grid { grid-template-columns: 1fr; }
       .form-group.full { grid-column: 1; }
-      nav button { padding: 8px 10px; font-size: 13px; }
+      .tool-row { align-items: flex-start; }
+      .tool-right { flex-direction: column; align-items: flex-end; gap: 6px; }
+      .metric-grid { grid-template-columns: 1fr 1fr; }
+      .worst-item { align-items: flex-start; }
+      .hero h2 { font-size: 34px; }
     }
   </style>
 </head>
 <body>
-
-<div class="app">
-  <div class="header">
-    <div>
-      <h1>StackTrim</h1>
-      <p>Audit your software stack. Cut what costs you.</p>
-    </div>
-    <span class="beta">beta</span>
-  </div>
-
-  <nav>
-    <button class="active" onclick="showTab('dashboard')">
-      <i class="ti ti-layout-dashboard"></i> Dashboard
-    </button>
-    <button onclick="showTab('add')">
-      <i class="ti ti-plus"></i> Add tool
-    </button>
-    <button onclick="showTab('audit')">
-      <i class="ti ti-report-analytics"></i> Audit
-    </button>
-    <button onclick="showTab('export')">
-      <i class="ti ti-file-text"></i> Report
-    </button>
-  </nav>
-
-  <div id="tab-dashboard" class="tab active"></div>
-  <div id="tab-add"       class="tab"></div>
-  <div id="tab-audit"     class="tab"></div>
-  <div id="tab-export"    class="tab"></div>
-</div>
-
-<script>
-/* ─── Data ─────────────────────────────────────────────────── */
-
-const REPLACEMENTS = {
-  ai:         { free: 'Claude.ai free / ChatGPT free',          tip: 'Most people need one primary AI. Use free tiers for the rest.' },
-  notes:      { free: 'Obsidian, Apple Notes, or OneNote',       tip: 'Local notes apps are free and private.' },
-  design:     { free: 'Canva free tier or Figma free',           tip: 'Free tiers cover most personal/freelance needs.' },
-  productivity:{ free: 'Notion free, Trello free, or Apple Reminders', tip: 'Free tiers handle most solo workflows.' },
-  coding:     { free: 'VS Code + Ollama + Codeium',             tip: 'Local AI + free extensions replace most paid coding IDEs.' },
-  learning:   { free: 'YouTube, freeCodeCamp, or Coursera audit', tip: 'Audit courses for free. Only pay for certificates.' },
-  storage:    { free: 'Google Drive 15 GB free or local storage', tip: 'Most users never actively use more than 15 GB.' },
-  vpn:        { free: 'Cloudflare WARP (free)',                  tip: 'WARP is free and covers most use cases.' },
-  password:   { free: 'Bitwarden (free)',                        tip: 'Open-source and fully free for individuals.' },
-  music:      { free: 'Spotify free or YouTube Music free',      tip: 'Free tiers are fine with occasional ads.' },
-  fitness:    { free: 'Apple Fitness free, Nike Run Club, YouTube', tip: 'Free workout content is endless on YouTube.' },
-  finance:    { free: 'Google Sheets budget template',           tip: 'A spreadsheet does 90% of what paid apps do.' },
-  other:      { free: 'Check Product Hunt for free alternatives', tip: 'There is usually a free or open-source version.' },
-};
-
-const ICONS = {
-  ai:'ti-robot', notes:'ti-notebook', design:'ti-palette', productivity:'ti-checkbox',
-  coding:'ti-code', learning:'ti-school', storage:'ti-cloud', vpn:'ti-shield',
-  password:'ti-lock', music:'ti-music', fitness:'ti-run', finance:'ti-coin', other:'ti-apps'
-};
-
-const ICON_STYLE = {
-  ai:         'background:#EEEDFE;color:#534AB7',
-  notes:      'background:#E1F5EE;color:#0F6E56',
-  design:     'background:#FBEAF0;color:#993556',
-  productivity:'background:#E6F1FB;color:#185FA5',
-  coding:     'background:#EEEDFE;color:#3C3489',
-  learning:   'background:#FAEEDA;color:#854F0B',
-  storage:    'background:#E6F1FB;color:#185FA5',
-  vpn:        'background:#E1F5EE;color:#0F6E56',
-  password:   'background:#FAECE7;color:#993C1D',
-  music:      'background:#FBEAF0;color:#993556',
-  fitness:    'background:#EAF3DE;color:#3B6D11',
-  finance:    'background:#EAF3DE;color:#3B6D11',
-  other:      'background:#F1EFE8;color:#5F5E5A',
-};
-
-let tools = JSON.parse(localStorage.getItem('stacktrim_tools') || 'null') || [
-  { id:1, name:'ChatGPT Plus',   cost:20, category:'ai',       usage:'daily',   pain:'high',   purpose:'writing, coding help' },
-  { id:2, name:'Claude Pro',     cost:20, category:'ai',       usage:'weekly',  pain:'medium', purpose:'writing, research' },
-  { id:3, name:'Notion',         cost:16, category:'notes',    usage:'daily',   pain:'medium', purpose:'notes, docs' },
-  { id:4, name:'Perplexity Pro', cost:20, category:'ai',       usage:'rarely',  pain:'low',    purpose:'search' },
-  { id:5, name:'Coursera Plus',  cost:59, category:'learning', usage:'monthly', pain:'low',    purpose:'learning' },
-];
-let nextId = 100;
-
-function save() {
-  try { localStorage.setItem('stacktrim_tools', JSON.stringify(tools)); } catch(e) {}
-}
-
-/* ─── Scoring ───────────────────────────────────────────────── */
-
-function score(tool) {
-  let s = 0;
-  // Usage
-  if (tool.usage === 'daily')   s += 4;
-  else if (tool.usage === 'weekly')  s += 2;
-  else if (tool.usage === 'monthly') s -= 1;
-  else                                s -= 3;  // rarely
-  // Pain
-  if (tool.pain === 'high')   s += 3;
-  else if (tool.pain === 'medium') s += 1;
-  else                              s -= 2;  // low
-  // Cost
-  if      (tool.cost <= 5)  s += 1;
-  else if (tool.cost <= 15) s += 0;
-  else if (tool.cost <= 30) s -= 2;
-  else                       s -= 4;
-  // Overlap penalty
-  const overlap = tools.filter(t => t.id !== tool.id && t.category === tool.category).length;
-  s -= overlap * 3;
-  return s;
-}
-
-function verdict(s) {
-  if (s >= 5)  return 'keep';
-  if (s >= 2)  return 'downgrade';
-  if (s >= -1) return 'review';
-  return 'cancel';
-}
-
-const VERDICT_LABEL = { keep:'KEEP', downgrade:'DOWNGRADE', review:'REVIEW', cancel:'CANCEL' };
-const VERDICT_CLASS = { keep:'badge-keep', downgrade:'badge-downgrade', review:'badge-review', cancel:'badge-cancel' };
-
-function reason(tool, s) {
-  const v = verdict(s);
-  const overlap = tools.filter(t => t.id !== tool.id && t.category === tool.category);
-  if (v === 'cancel') {
-    let r = `Used ${tool.usage} — costs $${tool.cost}/mo.`;
-    if (overlap.length) r += ` Overlaps with: ${overlap.map(t => t.name).join(', ')}.`;
-    return r;
-  }
-  if (v === 'downgrade') return `Used ${tool.usage} — consider downgrading to a cheaper or free tier.`;
-  if (v === 'review')    return `Worth reviewing — used ${tool.usage}, costs $${tool.cost}/mo.`;
-  return `Core tool — used ${tool.usage} and rated high pain to remove.`;
-}
-
-function calcSavings() {
-  return tools.reduce((sum, t) => {
-    const v = verdict(score(t));
-    if (v === 'cancel' || v === 'review') return sum + t.cost;
-    if (v === 'downgrade') return sum + Math.round(t.cost * 0.5);
-    return sum;
-  }, 0);
-}
-
-/* ─── Navigation ────────────────────────────────────────────── */
-
-function showTab(tab) {
-  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelectorAll('nav button').forEach((b, i) => {
-    b.classList.toggle('active', ['dashboard','add','audit','export'][i] === tab);
-  });
-  if (tab === 'dashboard') renderDashboard();
-  if (tab === 'add')       renderAdd();
-  if (tab === 'audit')     renderAudit();
-  if (tab === 'export')    renderExport();
-}
-
-/* ─── Dashboard ─────────────────────────────────────────────── */
-
-function renderDashboard() {
-  const total   = tools.reduce((s, t) => s + t.cost, 0);
-  const savings = calcSavings();
-  const keep    = tools.filter(t => verdict(score(t)) === 'keep').length;
-  const cut     = tools.filter(t => ['cancel','review'].includes(verdict(score(t)))).length;
-  const worst   = [...tools].sort((a, b) => score(a) - score(b)).slice(0, 3);
-
-  let html = `
-    <div class="metric-grid">
-      <div class="metric"><div class="metric-label">Monthly spend</div><div class="metric-value spend">$${total.toFixed(0)}</div></div>
-      <div class="metric"><div class="metric-label">Yearly spend</div><div class="metric-value spend">$${(total*12).toFixed(0)}</div></div>
-      <div class="metric"><div class="metric-label">Savings / mo</div><div class="metric-value savings">$${savings.toFixed(0)}</div></div>
-      <div class="metric"><div class="metric-label">Savings / yr</div><div class="metric-value savings">$${(savings*12).toFixed(0)}</div></div>
-      <div class="metric"><div class="metric-label">Keep</div><div class="metric-value">${keep}</div></div>
-      <div class="metric"><div class="metric-label">Cut</div><div class="metric-value">${cut}</div></div>
-    </div>`;
-
-  if (tools.length === 0) {
-    html += `<div class="empty-state"><i class="ti ti-apps"></i>No tools yet. Add your subscriptions to get started.<br><br>
-      <button class="btn-primary" onclick="showTab('add')">Add your first tool</button></div>`;
-  } else {
-    html += `<div class="section-title">Worst offenders</div><div class="card">`;
-    worst.forEach(t => {
-      const s = score(t);
-      const v = verdict(s);
-      html += `<div class="worst-item">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <div class="tool-icon" style="${ICON_STYLE[t.category]}"><i class="ti ${ICONS[t.category]||'ti-apps'}"></i></div>
-          <div>
-            <div class="tool-name">${t.name}</div>
-            <div class="tool-meta">${t.category} · ${t.usage}</div>
-          </div>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">S</div>
+        <div>
+          <h1>StackTrim</h1>
+          <p>Subscription auditor for messy software stacks.</p>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span class="tool-cost">$${t.cost}/mo</span>
-          <span class="badge ${VERDICT_CLASS[v]}">${VERDICT_LABEL[v]}</span>
-        </div>
-      </div>`;
-    });
-    html += `</div>
-    <button class="btn-primary" style="width:100%;margin-top:0.5rem;" onclick="showTab('audit')">See full audit →</button>`;
-  }
-
-  document.getElementById('tab-dashboard').innerHTML = html;
-}
-
-/* ─── Add Tool ──────────────────────────────────────────────── */
-
-function renderAdd() {
-  document.getElementById('tab-add').innerHTML = `
-    <div class="section-title">Add a subscription or tool</div>
-    <div class="tip"><i class="ti ti-bulb" style="color:#185fa5;margin-right:6px;"></i>Add every app, AI tool, SaaS, or subscription you pay for — even the ones you forgot about.</div>
-    <div class="form-grid">
-      <div class="form-group full">
-        <label>Tool / app name</label>
-        <input type="text" id="f-name" placeholder="e.g. ChatGPT Plus, Notion, Canva Pro…">
       </div>
-      <div class="form-group">
-        <label>Monthly cost ($)</label>
-        <input type="number" id="f-cost" min="0" step="0.01" placeholder="20">
+      <div class="top-actions">
+        <span class="badge badge-beta">MVP</span>
+        <button class="btn btn-secondary btn-small" onclick="openPrivacyModal()">
+          <i class="ti ti-shield-lock"></i> Privacy
+        </button>
       </div>
-      <div class="form-group">
-        <label>Category</label>
-        <select id="f-cat">
-          <option value="ai">AI assistant</option>
-          <option value="notes">Notes / docs</option>
-          <option value="design">Design</option>
-          <option value="productivity">Productivity</option>
-          <option value="coding">Coding / dev</option>
-          <option value="learning">Learning</option>
-          <option value="storage">Storage / backup</option>
-          <option value="vpn">VPN / security</option>
-          <option value="password">Password manager</option>
-          <option value="music">Music / media</option>
-          <option value="fitness">Fitness</option>
-          <option value="finance">Finance</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>How often do you use it?</label>
-        <select id="f-usage">
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="rarely">Rarely / forgot I had it</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Pain if removed?</label>
-        <select id="f-pain">
-          <option value="high">High — I rely on it</option>
-          <option value="medium">Medium — would miss it</option>
-          <option value="low">Low — could live without it</option>
-        </select>
-      </div>
-      <div class="form-group full">
-        <label>Main purpose (optional)</label>
-        <input type="text" id="f-purpose" placeholder="e.g. writing, coding, design, notes…">
-      </div>
-    </div>
-    <button class="btn-primary" onclick="addTool()">Add tool</button>
-  `;
-}
+    </header>
 
-function addTool() {
-  const name = document.getElementById('f-name').value.trim();
-  const cost = parseFloat(document.getElementById('f-cost').value) || 0;
-  if (!name) { alert('Please enter a tool name.'); return; }
-  tools.push({
-    id: nextId++,
-    name,
-    cost,
-    category: document.getElementById('f-cat').value,
-    usage:    document.getElementById('f-usage').value,
-    pain:     document.getElementById('f-pain').value,
-    purpose:  document.getElementById('f-purpose').value.trim(),
-  });
-  save();
-  document.getElementById('f-name').value    = '';
-  document.getElementById('f-cost').value    = '';
-  document.getElementById('f-purpose').value = '';
-  showTab('audit');
-}
-
-/* ─── Audit ─────────────────────────────────────────────────── */
-
-function deleteTool(id) {
-  tools = tools.filter(t => t.id !== id);
-  save();
-  renderAudit();
-}
-
-function renderAudit() {
-  if (tools.length === 0) {
-    document.getElementById('tab-audit').innerHTML = `
-      <div class="empty-state"><i class="ti ti-report"></i>No tools added yet.<br><br>
-      <button class="btn-primary" onclick="showTab('add')">Add tools to audit</button></div>`;
-    return;
-  }
-  const sorted = [...tools].sort((a, b) => score(a) - score(b));
-  let html = `<div class="section-title">Full audit (${tools.length} tool${tools.length !== 1 ? 's' : ''})</div>`;
-  sorted.forEach(t => {
-    const s  = score(t);
-    const v  = verdict(s);
-    const rep = REPLACEMENTS[t.category] || REPLACEMENTS.other;
-    const showReplacement = v === 'cancel' || v === 'review';
-    html += `
-      <div class="card">
-        <div class="tool-row">
-          <div class="tool-icon" style="${ICON_STYLE[t.category]}"><i class="ti ${ICONS[t.category]||'ti-apps'}"></i></div>
-          <div class="tool-info">
-            <div class="tool-name">${t.name}</div>
-            <div class="tool-meta">${t.category}${t.purpose ? ' · ' + t.purpose : ''}</div>
-          </div>
-          <div class="tool-right">
-            <span class="tool-cost">$${t.cost}/mo</span>
-            <span class="badge ${VERDICT_CLASS[v]}">${VERDICT_LABEL[v]}</span>
-            <button class="btn-delete" onclick="deleteTool(${t.id})" aria-label="Remove ${t.name}">
-              <i class="ti ti-x"></i>
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <h2>Stop paying for tools you barely use.</h2>
+          <p>
+            Add your AI apps, subscriptions, learning platforms, and software tools.
+            StackTrim finds overlap, estimates possible savings, and gives cheaper replacement ideas.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="showTab('add')">
+              <i class="ti ti-plus"></i> Start audit
+            </button>
+            <button class="btn btn-secondary" onclick="loadDemoData()">
+              <i class="ti ti-sparkles"></i> Try demo data
             </button>
           </div>
         </div>
-        <div class="verdict-reason">
-          ${reason(t, s)}
-          ${showReplacement ? `<div class="replacement"><i class="ti ti-arrow-right" style="font-size:11px;"></i> Free alternative: ${rep.free} — ${rep.tip}</div>` : ''}
+        <div class="hero-stat">
+          <small>Potential yearly savings</small>
+          <strong id="hero-savings">$0</strong>
+          <span>Based on your current audit.</span>
         </div>
-      </div>`;
-  });
-  document.getElementById('tab-audit').innerHTML = html;
-}
+      </div>
+    </section>
 
-/* ─── Report ────────────────────────────────────────────────── */
+    <nav aria-label="Main navigation">
+      <button class="active" onclick="showTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+      <button onclick="showTab('add')"><i class="ti ti-plus"></i> Add tool</button>
+      <button onclick="showTab('audit')"><i class="ti ti-report-analytics"></i> Audit</button>
+      <button onclick="showTab('alternatives')"><i class="ti ti-switch-horizontal"></i> Alternatives</button>
+      <button onclick="showTab('report')"><i class="ti ti-file-text"></i> Report</button>
+    </nav>
 
-function renderExport() {
-  const total    = tools.reduce((s, t) => s + t.cost, 0);
-  const savings  = calcSavings();
-  const cancel   = tools.filter(t => ['cancel','review'].includes(verdict(score(t))));
-  const keep     = tools.filter(t => verdict(score(t)) === 'keep');
-  const downgrade = tools.filter(t => verdict(score(t)) === 'downgrade');
-  const date     = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    <main>
+      <div id="tab-dashboard" class="tab active"></div>
+      <div id="tab-add" class="tab"></div>
+      <div id="tab-audit" class="tab"></div>
+      <div id="tab-alternatives" class="tab"></div>
+      <div id="tab-report" class="tab"></div>
+    </main>
 
-  const report = `══════════════════════════════════
-  STACKTRIM — SUBSCRIPTION AUDIT
-  ${date}
-══════════════════════════════════
+    <footer class="footer">
+      StackTrim MVP saves data only in your browser using localStorage. No accounts, no external AI calls, and no payment processing are included in this version.
+    </footer>
+  </div>
+
+  <div class="modal-backdrop" id="privacy-modal" onclick="closePrivacyModal(event)">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
+      <h3 id="privacy-title">Privacy-first MVP</h3>
+      <p>
+        This version runs completely in your browser. Your tool list is stored locally on your device.
+        There is no backend, no tracking script, no API key input, and no external AI call.
+      </p>
+      <p>
+        Because there is no account system yet, data will not sync across devices or browsers.
+        Export your report if you want a copy.
+      </p>
+      <button class="btn btn-primary" onclick="document.getElementById('privacy-modal').classList.remove('show')">Got it</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'stacktrim_v2_tools';
+
+    const CATEGORY_META = {
+      ai: { label: 'AI', icon: 'ti-robot', style: 'background:#EEEDFE;color:#534AB7' },
+      notes: { label: 'Notes', icon: 'ti-notebook', style: 'background:#E1F5EE;color:#0F6E56' },
+      design: { label: 'Design', icon: 'ti-palette', style: 'background:#FBEAF0;color:#993556' },
+      productivity: { label: 'Productivity', icon: 'ti-checkbox', style: 'background:#E6F1FB;color:#185FA5' },
+      coding: { label: 'Coding', icon: 'ti-code', style: 'background:#EEEDFE;color:#3C3489' },
+      learning: { label: 'Learning', icon: 'ti-school', style: 'background:#FAEEDA;color:#854F0B' },
+      storage: { label: 'Storage', icon: 'ti-cloud', style: 'background:#E6F1FB;color:#185FA5' },
+      vpn: { label: 'VPN', icon: 'ti-shield', style: 'background:#E1F5EE;color:#0F6E56' },
+      password: { label: 'Password', icon: 'ti-lock', style: 'background:#FAECE7;color:#993C1D' },
+      music: { label: 'Music', icon: 'ti-music', style: 'background:#FBEAF0;color:#993556' },
+      fitness: { label: 'Fitness', icon: 'ti-run', style: 'background:#EAF3DE;color:#3B6D11' },
+      finance: { label: 'Finance', icon: 'ti-coin', style: 'background:#EAF3DE;color:#3B6D11' },
+      other: { label: 'Other', icon: 'ti-apps', style: 'background:#F1EFE8;color:#5F5E5A' }
+    };
+
+    const ALTERNATIVES = {
+      ai: [
+        { name: 'ChatGPT Free', price: 'Free tier', desc: 'Good general AI helper without paying monthly.', pros: ['General chat', 'Coding help', 'No setup'], url: 'https://chatgpt.com' },
+        { name: 'Claude Free', price: 'Free tier', desc: 'Strong writing and reasoning assistant with a free plan.', pros: ['Writing', 'Long prompts', 'Research help'], url: 'https://claude.ai' },
+        { name: 'Ollama', price: 'Free / local', desc: 'Run open models locally for private experiments and coding help.', pros: ['Local', 'No monthly fee', 'Great for tinkering'], url: 'https://ollama.com' }
+      ],
+      notes: [
+        { name: 'Obsidian', price: 'Free personal use', desc: 'Local markdown notes with strong organization and plugins.', pros: ['Local files', 'Markdown', 'Powerful linking'], url: 'https://obsidian.md' },
+        { name: 'Apple Notes', price: 'Free', desc: 'Simple notes app already built into Apple devices.', pros: ['Built-in', 'Syncs with iCloud', 'Fast capture'], url: 'https://www.icloud.com/notes' },
+        { name: 'OneNote', price: 'Free tier', desc: 'Cross-platform notebook app with lots of flexible formatting.', pros: ['Free', 'Cross-platform', 'Good for school'], url: 'https://www.onenote.com' }
+      ],
+      design: [
+        { name: 'Canva Free', price: 'Free tier', desc: 'Enough templates and basic design tools for many creators.', pros: ['Templates', 'Easy sharing', 'Fast designs'], url: 'https://www.canva.com' },
+        { name: 'Figma', price: 'Free tier', desc: 'Great for web/app mockups and interface design.', pros: ['UI design', 'Collaboration', 'Web-based'], url: 'https://www.figma.com' },
+        { name: 'Photopea', price: 'Free with ads', desc: 'Browser-based Photoshop-like editor.', pros: ['No install', 'PSD support', 'Powerful'], url: 'https://www.photopea.com' }
+      ],
+      productivity: [
+        { name: 'Google Calendar + Tasks', price: 'Free', desc: 'Simple scheduling and task management that works everywhere.', pros: ['Free', 'Reliable', 'Cross-platform'], url: 'https://calendar.google.com' },
+        { name: 'Trello', price: 'Free tier', desc: 'Easy kanban boards for solo projects and small teams.', pros: ['Visual boards', 'Simple', 'Templates'], url: 'https://trello.com' },
+        { name: 'Notion Free', price: 'Free tier', desc: 'Flexible workspace for notes, docs, tasks, and simple databases.', pros: ['All-in-one', 'Templates', 'Good free plan'], url: 'https://www.notion.so' }
+      ],
+      coding: [
+        { name: 'VS Code', price: 'Free', desc: 'Strong coding editor with extensions for Python, C++, Git, and more.', pros: ['Free', 'Extensions', 'Professional standard'], url: 'https://code.visualstudio.com' },
+        { name: 'GitHub', price: 'Free tier', desc: 'Host projects and show your code portfolio.', pros: ['Portfolio', 'Version control', 'Private repos'], url: 'https://github.com' },
+        { name: 'Ollama + Qwen Coder', price: 'Free / local', desc: 'Local coding assistant setup for experiments without a monthly bill.', pros: ['Local AI', 'No subscription', 'Good for learning'], url: 'https://ollama.com/library/qwen2.5-coder' }
+      ],
+      learning: [
+        { name: 'freeCodeCamp', price: 'Free', desc: 'Structured coding lessons and projects.', pros: ['Free', 'Beginner friendly', 'Certificates'], url: 'https://www.freecodecamp.org' },
+        { name: 'YouTube', price: 'Free', desc: 'Huge amount of tutorials for coding, design, finance, and fitness.', pros: ['Free', 'Broad topics', 'Fast search'], url: 'https://www.youtube.com' },
+        { name: 'Coursera Audit', price: 'Free to audit many courses', desc: 'Many courses can be audited free without paying for the certificate.', pros: ['University courses', 'Structured', 'Flexible'], url: 'https://www.coursera.org' }
+      ],
+      storage: [
+        { name: 'Google Drive', price: '15 GB free', desc: 'Good default cloud storage for docs and basic backups.', pros: ['Free storage', 'Sharing', 'Docs integration'], url: 'https://drive.google.com' },
+        { name: 'iCloud Drive', price: 'Free tier', desc: 'Useful if you mainly use Apple devices.', pros: ['Apple sync', 'Built-in', 'Easy backups'], url: 'https://www.icloud.com' },
+        { name: 'Local external drive', price: 'One-time hardware cost', desc: 'Cheaper long-term storage for large files.', pros: ['No monthly fee', 'Private', 'Large capacity'], url: 'https://www.bestbuy.com/site/external-hard-drives/pcmcat186100050005.c' }
+      ],
+      vpn: [
+        { name: 'Cloudflare WARP', price: 'Free', desc: 'Simple encrypted DNS/VPN-like app for everyday browsing protection.', pros: ['Free', 'Simple', 'Trusted provider'], url: 'https://one.one.one.one' },
+        { name: 'Proton VPN', price: 'Free tier', desc: 'Privacy-focused VPN with a useful free plan.', pros: ['Privacy', 'Free tier', 'Known brand'], url: 'https://protonvpn.com' },
+        { name: 'Windscribe', price: 'Free tier', desc: 'VPN with a monthly free data allowance.', pros: ['Free data', 'Flexible', 'Cross-platform'], url: 'https://windscribe.com' }
+      ],
+      password: [
+        { name: 'Bitwarden', price: 'Free tier', desc: 'Excellent free password manager for individuals.', pros: ['Open source', 'Free', 'Cross-platform'], url: 'https://bitwarden.com' },
+        { name: 'iCloud Keychain', price: 'Free', desc: 'Built into Apple devices and good for basic password management.', pros: ['Built-in', 'Easy autofill', 'Apple sync'], url: 'https://support.apple.com/en-us/109016' },
+        { name: 'Google Password Manager', price: 'Free', desc: 'Basic password manager built into Chrome/Google accounts.', pros: ['Free', 'Easy', 'Chrome integration'], url: 'https://passwords.google.com' }
+      ],
+      music: [
+        { name: 'Spotify Free', price: 'Free with ads', desc: 'Good enough if you can tolerate ads and limitations.', pros: ['Huge library', 'Playlists', 'Free'], url: 'https://www.spotify.com' },
+        { name: 'YouTube Music Free', price: 'Free with ads', desc: 'Useful if you already use YouTube a lot.', pros: ['Large catalog', 'Free', 'Videos'], url: 'https://music.youtube.com' },
+        { name: 'Library apps', price: 'Free with library card', desc: 'Some libraries provide free music, audiobooks, or media services.', pros: ['Free', 'Legal', 'Often overlooked'], url: 'https://www.hoopladigital.com' }
+      ],
+      fitness: [
+        { name: 'Nike Training Club', price: 'Free', desc: 'Free workouts and fitness programs.', pros: ['Free workouts', 'Beginner friendly', 'Mobile app'], url: 'https://www.nike.com/ntc-app' },
+        { name: 'Nike Run Club', price: 'Free', desc: 'Good running tracker and guided run app.', pros: ['Free', 'Guided runs', 'Tracking'], url: 'https://www.nike.com/nrc-app' },
+        { name: 'YouTube workouts', price: 'Free', desc: 'Endless free workout videos for home or gym.', pros: ['Free', 'Variety', 'No equipment options'], url: 'https://www.youtube.com' }
+      ],
+      finance: [
+        { name: 'Google Sheets budget', price: 'Free', desc: 'A simple spreadsheet can replace many budgeting apps.', pros: ['Free', 'Customizable', 'Exportable'], url: 'https://sheets.google.com' },
+        { name: 'Apple Numbers', price: 'Free on Apple devices', desc: 'Good simple spreadsheet option for Apple users.', pros: ['Free', 'Apple devices', 'Templates'], url: 'https://www.apple.com/numbers' },
+        { name: 'Monarch/Rocket Money alternatives', price: 'Review manually first', desc: 'Before paying for finance apps, manually audit bills and subscriptions.', pros: ['More control', 'No data linking', 'No subscription'], url: 'https://sheets.google.com' }
+      ],
+      other: [
+        { name: 'Free tier search', price: 'Varies', desc: 'Most software categories have a strong free tier competitor.', pros: ['Lower cost', 'Flexible', 'Good first step'], url: 'https://alternativeto.net' },
+        { name: 'Open-source alternatives', price: 'Usually free', desc: 'Search open-source tools before paying another subscription.', pros: ['Free', 'Community-built', 'Transparent'], url: 'https://github.com' },
+        { name: 'One-time purchase apps', price: 'One-time', desc: 'Sometimes a one-time app is better than another monthly subscription.', pros: ['No monthly bill', 'Predictable', 'Simple'], url: 'https://alternativeto.net' }
+      ]
+    };
+
+    const demoTools = [
+      { id: 1, name: 'ChatGPT Plus', cost: 20, category: 'ai', usage: 'daily', pain: 'high', purpose: 'coding and writing' },
+      { id: 2, name: 'Claude Pro', cost: 20, category: 'ai', usage: 'weekly', pain: 'medium', purpose: 'long writing' },
+      { id: 3, name: 'Perplexity Pro', cost: 20, category: 'ai', usage: 'rarely', pain: 'low', purpose: 'AI search' },
+      { id: 4, name: 'Canva Pro', cost: 15, category: 'design', usage: 'monthly', pain: 'medium', purpose: 'social posts' },
+      { id: 5, name: 'Coursera Plus', cost: 59, category: 'learning', usage: 'monthly', pain: 'low', purpose: 'courses' }
+    ];
+
+    let tools = loadTools();
+    let nextId = getNextId();
+
+    function loadTools() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveTools() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
+      updateHeroSavings();
+    }
+
+    function getNextId() {
+      return tools.length ? Math.max(...tools.map(t => Number(t.id) || 0)) + 1 : 1;
+    }
+
+    function escHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function money(value) {
+      return `$${Number(value || 0).toFixed(0)}`;
+    }
+
+    function categoryLabel(category) {
+      return CATEGORY_META[category]?.label || 'Other';
+    }
+
+    function scoreTool(tool) {
+      let s = 0;
+
+      if (tool.usage === 'daily') s += 4;
+      else if (tool.usage === 'weekly') s += 2;
+      else if (tool.usage === 'monthly') s -= 1;
+      else s -= 3;
+
+      if (tool.pain === 'high') s += 3;
+      else if (tool.pain === 'medium') s += 1;
+      else s -= 2;
+
+      const cost = Number(tool.cost) || 0;
+      if (cost <= 5) s += 1;
+      else if (cost <= 15) s += 0;
+      else if (cost <= 30) s -= 2;
+      else s -= 4;
+
+      const overlapCount = tools.filter(t => t.id !== tool.id && t.category === tool.category).length;
+      s -= overlapCount * 3;
+
+      return s;
+    }
+
+    function verdictFromScore(score) {
+      if (score >= 5) return 'keep';
+      if (score >= 2) return 'downgrade';
+      if (score >= -1) return 'review';
+      return 'cancel';
+    }
+
+    const VERDICT_LABEL = {
+      keep: 'KEEP',
+      downgrade: 'DOWNGRADE',
+      review: 'REVIEW',
+      cancel: 'CANCEL'
+    };
+
+    const VERDICT_CLASS = {
+      keep: 'badge-keep',
+      downgrade: 'badge-downgrade',
+      review: 'badge-review',
+      cancel: 'badge-cancel'
+    };
+
+    function calcSavings() {
+      return tools.reduce((sum, tool) => {
+        const verdict = verdictFromScore(scoreTool(tool));
+        const cost = Number(tool.cost) || 0;
+        if (verdict === 'cancel' || verdict === 'review') return sum + cost;
+        if (verdict === 'downgrade') return sum + Math.round(cost * 0.5);
+        return sum;
+      }, 0);
+    }
+
+    function reasonFor(tool) {
+      const verdict = verdictFromScore(scoreTool(tool));
+      const cost = Number(tool.cost) || 0;
+      const overlap = tools.filter(t => t.id !== tool.id && t.category === tool.category);
+
+      if (verdict === 'cancel') {
+        let text = `Used ${tool.usage}. Costs $${cost}/mo.`;
+        if (overlap.length) text += ` Overlaps with ${overlap.map(t => t.name).join(', ')}.`;
+        return text;
+      }
+      if (verdict === 'downgrade') return `Useful, but you may not need the full paid tier. Try cutting the plan in half or moving to a free tier.`;
+      if (verdict === 'review') return `Worth reviewing. It has either low usage, overlap, or cost pressure.`;
+      return `Core tool. High usage and/or high pain if removed.`;
+    }
+
+    function updateHeroSavings() {
+      const yearly = calcSavings() * 12;
+      const el = document.getElementById('hero-savings');
+      if (el) el.textContent = money(yearly);
+    }
+
+    function showTab(tab) {
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+
+      const tabs = ['dashboard', 'add', 'audit', 'alternatives', 'report'];
+      document.querySelectorAll('nav button').forEach((button, index) => {
+        button.classList.toggle('active', tabs[index] === tab);
+      });
+
+      if (tab === 'dashboard') renderDashboard();
+      if (tab === 'add') renderAdd();
+      if (tab === 'audit') renderAudit();
+      if (tab === 'alternatives') renderAlternatives();
+      if (tab === 'report') renderReport();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderDashboard() {
+      const total = tools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+      const savings = calcSavings();
+      const keep = tools.filter(t => verdictFromScore(scoreTool(t)) === 'keep').length;
+      const cut = tools.filter(t => ['cancel', 'review'].includes(verdictFromScore(scoreTool(t)))).length;
+      const downgrade = tools.filter(t => verdictFromScore(scoreTool(t)) === 'downgrade').length;
+      const worst = [...tools].sort((a, b) => scoreTool(a) - scoreTool(b)).slice(0, 4);
+
+      let html = `
+        <div class="metric-grid">
+          <div class="metric"><div class="metric-label">Monthly spend</div><div class="metric-value spend">${money(total)}</div></div>
+          <div class="metric"><div class="metric-label">Yearly spend</div><div class="metric-value spend">${money(total * 12)}</div></div>
+          <div class="metric"><div class="metric-label">Possible savings / mo</div><div class="metric-value savings">${money(savings)}</div></div>
+          <div class="metric"><div class="metric-label">Possible savings / yr</div><div class="metric-value savings">${money(savings * 12)}</div></div>
+        </div>
+      `;
+
+      if (!tools.length) {
+        html += `
+          <div class="empty-state card">
+            <i class="ti ti-receipt"></i>
+            <strong>No subscriptions added yet.</strong><br>
+            Add your first tool or load demo data to see how StackTrim works.<br><br>
+            <button class="btn btn-primary" onclick="showTab('add')"><i class="ti ti-plus"></i> Add a tool</button>
+            <button class="btn btn-secondary" onclick="loadDemoData()"><i class="ti ti-sparkles"></i> Load demo</button>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="metric-grid">
+            <div class="metric"><div class="metric-label">Keep</div><div class="metric-value">${keep}</div></div>
+            <div class="metric"><div class="metric-label">Downgrade</div><div class="metric-value">${downgrade}</div></div>
+            <div class="metric"><div class="metric-label">Review / cut</div><div class="metric-value">${cut}</div></div>
+            <div class="metric"><div class="metric-label">Tools tracked</div><div class="metric-value">${tools.length}</div></div>
+          </div>
+
+          <div class="section-title">Worst offenders</div>
+          <div class="card">
+        `;
+
+        worst.forEach(tool => {
+          html += renderCompactToolRow(tool);
+        });
+
+        html += `
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
+            <button class="btn btn-primary" onclick="showTab('audit')">See full audit <i class="ti ti-arrow-right"></i></button>
+            <button class="btn btn-secondary" onclick="showTab('alternatives')"><i class="ti ti-switch-horizontal"></i> View alternatives</button>
+          </div>
+        `;
+      }
+
+      document.getElementById('tab-dashboard').innerHTML = html;
+      updateHeroSavings();
+    }
+
+    function renderAdd() {
+      document.getElementById('tab-add').innerHTML = `
+        <div class="section-title">Add a subscription or tool</div>
+        <div class="tip">
+          Add AI tools, software subscriptions, apps, learning platforms, design tools, storage, VPNs, and anything else you pay for.
+        </div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="tool-name">Tool / app name</label>
+              <input id="tool-name" type="text" placeholder="e.g. ChatGPT Plus, Canva Pro, Notion..." autocomplete="off" />
+            </div>
+            <div class="form-group">
+              <label for="tool-cost">Monthly cost ($)</label>
+              <input id="tool-cost" type="number" min="0" step="0.01" placeholder="20" />
+            </div>
+            <div class="form-group">
+              <label for="tool-category">Category</label>
+              <select id="tool-category">
+                ${Object.entries(CATEGORY_META).map(([key, meta]) => `<option value="${key}">${meta.label}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tool-usage">Usage</label>
+              <select id="tool-usage">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="rarely">Rarely / forgot I had it</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="tool-pain">Pain if removed</label>
+              <select id="tool-pain">
+                <option value="high">High — I rely on it</option>
+                <option value="medium">Medium — I would miss it</option>
+                <option value="low">Low — I could live without it</option>
+              </select>
+            </div>
+            <div class="form-group full">
+              <label for="tool-purpose">Main purpose</label>
+              <input id="tool-purpose" type="text" placeholder="e.g. coding help, video editing, notes, courses..." autocomplete="off" />
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="addTool()"><i class="ti ti-plus"></i> Add tool</button>
+        </div>
+      `;
+    }
+
+    function addTool() {
+      const name = document.getElementById('tool-name').value.trim();
+      const cost = parseFloat(document.getElementById('tool-cost').value) || 0;
+      const category = document.getElementById('tool-category').value;
+      const usage = document.getElementById('tool-usage').value;
+      const pain = document.getElementById('tool-pain').value;
+      const purpose = document.getElementById('tool-purpose').value.trim();
+
+      if (!name) {
+        showToast('Add a tool name first.');
+        return;
+      }
+
+      tools.push({ id: nextId++, name, cost, category, usage, pain, purpose });
+      saveTools();
+      showToast(`${name} added.`);
+      showTab('audit');
+    }
+
+    function renderAudit() {
+      if (!tools.length) {
+        document.getElementById('tab-audit').innerHTML = `
+          <div class="empty-state card">
+            <i class="ti ti-report"></i>
+            No tools to audit yet.<br><br>
+            <button class="btn btn-primary" onclick="showTab('add')">Add tools</button>
+          </div>
+        `;
+        return;
+      }
+
+      const sorted = [...tools].sort((a, b) => scoreTool(a) - scoreTool(b));
+
+      let html = `
+        <div class="section-title">Full audit</div>
+        <div class="section-sub">The lowest-scoring tools appear first because they are most likely to be wasted, duplicated, or overpriced.</div>
+      `;
+
+      sorted.forEach(tool => {
+        html += renderFullToolCard(tool);
+      });
+
+      html += `
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
+          <button class="btn btn-secondary" onclick="showTab('add')"><i class="ti ti-plus"></i> Add another</button>
+          <button class="btn btn-secondary" onclick="confirmClearAll()"><i class="ti ti-trash"></i> Clear all</button>
+        </div>
+      `;
+
+      document.getElementById('tab-audit').innerHTML = html;
+    }
+
+    function renderCompactToolRow(tool) {
+      const meta = CATEGORY_META[tool.category] || CATEGORY_META.other;
+      const verdict = verdictFromScore(scoreTool(tool));
+      return `
+        <div class="worst-item">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <div class="tool-icon" style="${meta.style}"><i class="ti ${meta.icon}"></i></div>
+            <div style="min-width:0;">
+              <div class="tool-name">${escHtml(tool.name)}</div>
+              <div class="tool-meta">${escHtml(categoryLabel(tool.category))} · ${escHtml(tool.usage)}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span class="tool-cost">${money(tool.cost)}/mo</span>
+            <span class="badge ${VERDICT_CLASS[verdict]}">${VERDICT_LABEL[verdict]}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFullToolCard(tool) {
+      const meta = CATEGORY_META[tool.category] || CATEGORY_META.other;
+      const verdict = verdictFromScore(scoreTool(tool));
+      const alts = ALTERNATIVES[tool.category] || ALTERNATIVES.other;
+      const topAlt = alts[0];
+
+      return `
+        <div class="card">
+          <div class="tool-row">
+            <div class="tool-icon" style="${meta.style}"><i class="ti ${meta.icon}"></i></div>
+            <div class="tool-info">
+              <div class="tool-name">${escHtml(tool.name)}</div>
+              <div class="tool-meta">
+                ${escHtml(categoryLabel(tool.category))} · ${escHtml(tool.usage)}
+                ${tool.purpose ? ` · ${escHtml(tool.purpose)}` : ''}
+              </div>
+            </div>
+            <div class="tool-right">
+              <span class="tool-cost">${money(tool.cost)}/mo</span>
+              <span class="badge ${VERDICT_CLASS[verdict]}">${VERDICT_LABEL[verdict]}</span>
+              <button class="btn-delete" onclick="deleteTool(${Number(tool.id)})" aria-label="Delete ${escHtml(tool.name)}"><i class="ti ti-x"></i></button>
+            </div>
+          </div>
+          <div class="verdict-reason">
+            ${escHtml(reasonFor(tool))}
+            ${verdict !== 'keep' ? `<div class="replacement"><i class="ti ti-arrow-right"></i> Try instead: <strong>${escHtml(topAlt.name)}</strong> — ${escHtml(topAlt.price)}.</div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function deleteTool(id) {
+      const tool = tools.find(t => Number(t.id) === Number(id));
+      tools = tools.filter(t => Number(t.id) !== Number(id));
+      saveTools();
+      renderAudit();
+      showToast(`${tool?.name || 'Tool'} removed.`);
+    }
+
+    function confirmClearAll() {
+      if (!tools.length) return;
+      const ok = confirm('Clear all saved tools from this browser?');
+      if (!ok) return;
+      tools = [];
+      nextId = 1;
+      saveTools();
+      renderDashboard();
+      showTab('dashboard');
+      showToast('All tools cleared.');
+    }
+
+    function loadDemoData() {
+      tools = demoTools.map(t => ({ ...t }));
+      nextId = getNextId();
+      saveTools();
+      showTab('dashboard');
+      showToast('Demo data loaded.');
+    }
+
+    function renderAlternatives() {
+      const categories = [...new Set(tools.map(t => t.category))];
+      const list = categories.length ? categories : ['ai', 'coding', 'notes', 'design'];
+
+      let html = `
+        <div class="section-title">Cheaper alternatives</div>
+        <div class="section-sub">
+          This MVP uses a curated replacement database instead of unsafe browser API keys.
+          Later, add a backend for AI-generated alternatives and payments.
+        </div>
+        <div class="alt-grid">
+      `;
+
+      list.forEach(category => {
+        const meta = CATEGORY_META[category] || CATEGORY_META.other;
+        const alts = ALTERNATIVES[category] || ALTERNATIVES.other;
+        const categoryTools = tools.filter(t => t.category === category);
+        const paidTotal = categoryTools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+
+        html += `
+          <div class="alt-card">
+            <h3>
+              <span><i class="ti ${meta.icon}"></i> ${escHtml(meta.label)}</span>
+              ${categoryTools.length ? `<span class="badge badge-muted">${money(paidTotal)}/mo</span>` : ''}
+            </h3>
+            <p>${categoryTools.length ? `You track ${categoryTools.length} tool(s) in this category.` : 'Popular replacement ideas for this category.'}</p>
+            <ul class="alt-list">
+              ${alts.map(alt => `
+                <li>
+                  <i class="ti ti-arrow-right" style="color:var(--blue-text);margin-top:2px;"></i>
+                  <span>
+                    <strong>${escHtml(alt.name)}</strong> — ${escHtml(alt.price)}<br>
+                    ${escHtml(alt.desc)}
+                    <br><a href="${escHtml(alt.url)}" target="_blank" rel="noopener noreferrer" style="color:var(--blue-text);">Open</a>
+                  </span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+
+      document.getElementById('tab-alternatives').innerHTML = html;
+    }
+
+    function buildReport() {
+      const total = tools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+      const savings = calcSavings();
+      const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      const groups = {
+        keep: tools.filter(t => verdictFromScore(scoreTool(t)) === 'keep'),
+        downgrade: tools.filter(t => verdictFromScore(scoreTool(t)) === 'downgrade'),
+        review: tools.filter(t => verdictFromScore(scoreTool(t)) === 'review'),
+        cancel: tools.filter(t => verdictFromScore(scoreTool(t)) === 'cancel')
+      };
+
+      const linesFor = (arr) => arr.length
+        ? arr.map(t => `  • ${t.name} — $${Number(t.cost || 0).toFixed(2)}/mo (${categoryLabel(t.category)})`).join('\n')
+        : '  None';
+
+      return `STACKTRIM SUBSCRIPTION AUDIT
+${date}
 
 SUMMARY
-  Monthly spend:      $${total.toFixed(2)}
-  Recommended cuts:   $${savings.toFixed(2)}/mo
-  Estimated savings:  $${(savings * 12).toFixed(0)}/year
+Monthly spend:        $${total.toFixed(2)}
+Yearly spend:         $${(total * 12).toFixed(2)}
+Possible savings/mo:  $${savings.toFixed(2)}
+Possible savings/yr:  $${(savings * 12).toFixed(2)}
 
-══════════════════════════════════
+KEEP
+${linesFor(groups.keep)}
 
-✓ KEEP (${keep.length} tool${keep.length !== 1 ? 's' : ''})
-${keep.map(t => `  • ${t.name}  —  $${t.cost}/mo`).join('\n') || '  None'}
+DOWNGRADE
+${linesFor(groups.downgrade)}
 
-↓ DOWNGRADE (${downgrade.length} tool${downgrade.length !== 1 ? 's' : ''})
-${downgrade.map(t => `  • ${t.name}  —  $${t.cost}/mo → try free tier`).join('\n') || '  None'}
+REVIEW
+${linesFor(groups.review)}
 
-✕ CANCEL OR REPLACE (${cancel.length} tool${cancel.length !== 1 ? 's' : ''})
-${cancel.map(t => {
-    const rep = REPLACEMENTS[t.category] || REPLACEMENTS.other;
-    return `  • ${t.name}  —  $${t.cost}/mo\n    → ${rep.free}`;
-  }).join('\n') || '  None'}
+CANCEL / REPLACE
+${linesFor(groups.cancel)}
 
-══════════════════════════════════
-  You could save $${(savings * 12).toFixed(0)}/year.
-  Generated by StackTrim
-══════════════════════════════════`;
+NOTES
+This audit is an estimate based on usage, cost, removal pain, and category overlap.
+Generated by StackTrim.`;
+    }
 
-  window._reportText = report;
+    function renderReport() {
+      const report = buildReport();
+      const savings = calcSavings();
 
-  document.getElementById('tab-export').innerHTML = `
-    ${savings > 0 ? `
-    <div class="savings-hero">
-      <div class="savings-big">$${(savings * 12).toFixed(0)}</div>
-      <div class="savings-sub">potential yearly savings · $${savings.toFixed(0)}/month to cut</div>
-    </div>` : ''}
-    <div style="display:flex;gap:8px;margin-bottom:1rem;">
-      <button class="btn-primary" onclick="copyReport()">
-        <i class="ti ti-copy"></i> Copy report
-      </button>
-      <button class="btn-secondary" onclick="downloadReport()">
-        <i class="ti ti-download"></i> Download .txt
-      </button>
-    </div>
-    <div class="report-block">${report}</div>
-  `;
-}
+      document.getElementById('tab-report').innerHTML = `
+        ${savings ? `
+          <div class="savings-hero">
+            <div class="savings-big">${money(savings * 12)}</div>
+            <div class="savings-sub">estimated yearly savings</div>
+          </div>
+        ` : ''}
+        <div class="section-title">Export report</div>
+        <div class="section-sub">Copy or download your audit. This is useful for saving a snapshot before clearing browser data.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+          <button class="btn btn-primary" onclick="copyReport()"><i class="ti ti-copy"></i> Copy report</button>
+          <button class="btn btn-secondary" onclick="downloadReport()"><i class="ti ti-download"></i> Download .txt</button>
+        </div>
+        <div class="report-block">${escHtml(report)}</div>
+      `;
+    }
 
-function copyReport() {
-  if (!window._reportText) return;
-  navigator.clipboard.writeText(window._reportText).then(() => {
-    const btn = document.querySelector('#tab-export .btn-primary');
-    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy"></i> Copy report'; }, 1500); }
-  });s
-}
+    function copyReport() {
+      navigator.clipboard.writeText(buildReport())
+        .then(() => showToast('Report copied.'))
+        .catch(() => showToast('Could not copy report.'));
+    }
 
-function downloadReport() {
-  if (!window._reportText) return;
-  const blob = new Blob([window._reportText], { type: 'text/plain' });
-  const a    = document.createElement('a');
-  a.href     = URL.createObjectURL(blob);
-  a.download = 'stacktrim-audit.txt';
-  a.click();
-}
+    function downloadReport() {
+      const blob = new Blob([buildReport()], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'stacktrim-audit.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      showToast('Report downloaded.');
+    }
 
-/* ─── Init ───────────────────────────────────────────────────── */
-showTab('dashboard');
-</script>
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function openPrivacyModal() {
+      document.getElementById('privacy-modal').classList.add('show');
+    }
+
+    function closePrivacyModal(event) {
+      if (event.target.id === 'privacy-modal') {
+        document.getElementById('privacy-modal').classList.remove('show');
+      }
+    }
+
+    showTab('dashboard');
+    updateHeroSavings();
+  </script>
 </body>
 </html>
