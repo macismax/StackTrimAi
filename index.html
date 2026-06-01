@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StackTrim — Subscription Auditor</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f2;
+      --bg3: #efefeb;
+      --text: #1a1a18;
+      --text2: #6b6b68;
+      --text3: #a0a09d;
+      --border: rgba(0,0,0,0.12);
+      --border2: rgba(0,0,0,0.2);
+      --green-bg: #eaf3de; --green-text: #3b6d11;
+      --red-bg: #fcebeb;   --red-text: #a32d2d;
+      --amber-bg: #faeeda; --amber-text: #854f0b;
+      --blue-bg: #e6f1fb;  --blue-text: #185fa5;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #252523;
+        --bg3: #2e2e2b;
+        --text: #f0f0ec;
+        --text2: #9a9a95;
+        --text3: #5e5e5a;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.2);
+        --green-bg: #173404; --green-text: #97c459;
+        --red-bg: #501313;   --red-text: #f09595;
+        --amber-bg: #412402; --amber-text: #fac775;
+        --blue-bg: #042c53;  --blue-text: #85b7eb;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg3);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .app {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .header h1 { font-size: 22px; font-weight: 500; }
+    .header p  { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    .beta { font-size: 11px; background: var(--bg2); color: var(--text2); padding: 3px 10px; border-radius: 20px; }
+
+    /* Nav */
+    nav {
+      display: flex;
+      gap: 2px;
+      border-bottom: 0.5px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    nav button {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--text2);
+      margin-bottom: -1px;
+      border-radius: 0;
+    }
+    nav button.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+    nav button:hover:not(.active) { color: var(--text); }
+
+    /* Metrics */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .metric {
+      background: var(--bg2);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .metric-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .metric-value { font-size: 22px; font-weight: 500; }
+    .metric-value.spend   { color: var(--red-text); }
+    .metric-value.savings { color: var(--green-text); }
+
+    /* Cards */
+    .card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 10px;
+    }
+
+    /* Tool row */
+    .tool-row { display: flex; align-items: center; gap: 12px; }
+    .tool-icon {
+      width: 38px; height: 38px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .tool-info { flex: 1; min-width: 0; }
+    .tool-name { font-size: 15px; font-weight: 500; }
+    .tool-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .tool-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .tool-cost { font-size: 15px; font-weight: 500; }
+
+    /* Badges */
+    .badge {
+      font-size: 11px; font-weight: 500;
+      padding: 3px 8px; border-radius: 20px; white-space: nowrap;
+    }
+    .badge-keep     { background: var(--green-bg); color: var(--green-text); }
+    .badge-cancel   { background: var(--red-bg);   color: var(--red-text); }
+    .badge-downgrade{ background: var(--blue-bg);  color: var(--blue-text); }
+    .badge-review   { background: var(--bg2);      color: var(--text2); }
+
+    /* Verdict reason */
+    .verdict-reason {
+      font-size: 12px; color: var(--text2);
+      margin-top: 8px; padding-top: 8px;
+      border-top: 0.5px solid var(--border);
+    }
+    .replacement { font-size: 12px; color: var(--blue-text); margin-top: 4px; }
+
+    /* Delete btn */
+    .btn-delete {
+      background: none; border: none;
+      color: var(--text3); cursor: pointer;
+      font-size: 16px; padding: 4px; border-radius: 4px;
+    }
+    .btn-delete:hover { color: var(--red-text); }
+
+    /* Forms */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 13px; font-weight: 500; color: var(--text2); }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      background: var(--bg);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      appearance: none;
+    }
+    input:focus, select:focus { border-color: var(--text2); }
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      padding: 10px 24px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary {
+      background: none;
+      border: 0.5px solid var(--border2);
+      padding: 9px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: var(--bg2); }
+
+    /* Misc */
+    .section-title { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text2); }
+    .empty-state i { font-size: 40px; margin-bottom: 1rem; display: block; color: var(--text3); }
+    .tip {
+      font-size: 13px; color: var(--text2);
+      background: var(--blue-bg);
+      border-radius: var(--radius-md);
+      padding: 10px 14px; margin-bottom: 1rem;
+    }
+    .savings-hero {
+      background: var(--bg2);
+      border-radius: var(--radius-lg);
+      padding: 2rem; text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .savings-big { font-size: 48px; font-weight: 500; color: var(--green-text); }
+    .savings-sub { font-size: 14px; color: var(--text2); margin-top: 4px; }
+    .report-block {
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 13px;
+      background: var(--bg2);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      white-space: pre-wrap;
+      line-height: 1.7;
+    }
+    .worst-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .worst-item:last-child { border-bottom: none; }
+
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: 1; }
+      nav button { padding: 8px 10px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <div>
+      <h1>StackTrim</h1>
+      <p>Audit your software stack. Cut what costs you.</p>
+    </div>
+    <span class="beta">beta</span>
+  </div>
+
+  <nav>
+    <button class="active" onclick="showTab('dashboard')">
+      <i class="ti ti-layout-dashboard"></i> Dashboard
+    </button>
+    <button onclick="showTab('add')">
+      <i class="ti ti-plus"></i> Add tool
+    </button>
+    <button onclick="showTab('audit')">
+      <i class="ti ti-report-analytics"></i> Audit
+    </button>
+    <button onclick="showTab('export')">
+      <i class="ti ti-file-text"></i> Report
+    </button>
+  </nav>
+
+  <div id="tab-dashboard" class="tab active"></div>
+  <div id="tab-add"       class="tab"></div>
+  <div id="tab-audit"     class="tab"></div>
+  <div id="tab-export"    class="tab"></div>
+</div>
+
+<script>
+/* ─── Data ─────────────────────────────────────────────────── */
+
+const REPLACEMENTS = {
+  ai:         { free: 'Claude.ai free / ChatGPT free',          tip: 'Most people need one primary AI. Use free tiers for the rest.' },
+  notes:      { free: 'Obsidian, Apple Notes, or OneNote',       tip: 'Local notes apps are free and private.' },
+  design:     { free: 'Canva free tier or Figma free',           tip: 'Free tiers cover most personal/freelance needs.' },
+  productivity:{ free: 'Notion free, Trello free, or Apple Reminders', tip: 'Free tiers handle most solo workflows.' },
+  coding:     { free: 'VS Code + Ollama + Codeium',             tip: 'Local AI + free extensions replace most paid coding IDEs.' },
+  learning:   { free: 'YouTube, freeCodeCamp, or Coursera audit', tip: 'Audit courses for free. Only pay for certificates.' },
+  storage:    { free: 'Google Drive 15 GB free or local storage', tip: 'Most users never actively use more than 15 GB.' },
+  vpn:        { free: 'Cloudflare WARP (free)',                  tip: 'WARP is free and covers most use cases.' },
+  password:   { free: 'Bitwarden (free)',                        tip: 'Open-source and fully free for individuals.' },
+  music:      { free: 'Spotify free or YouTube Music free',      tip: 'Free tiers are fine with occasional ads.' },
+  fitness:    { free: 'Apple Fitness free, Nike Run Club, YouTube', tip: 'Free workout content is endless on YouTube.' },
+  finance:    { free: 'Google Sheets budget template',           tip: 'A spreadsheet does 90% of what paid apps do.' },
+  other:      { free: 'Check Product Hunt for free alternatives', tip: 'There is usually a free or open-source version.' },
+};
+
+const ICONS = {
+  ai:'ti-robot', notes:'ti-notebook', design:'ti-palette', productivity:'ti-checkbox',
+  coding:'ti-code', learning:'ti-school', storage:'ti-cloud', vpn:'ti-shield',
+  password:'ti-lock', music:'ti-music', fitness:'ti-run', finance:'ti-coin', other:'ti-apps'
+};
+
+const ICON_STYLE = {
+  ai:         'background:#EEEDFE;color:#534AB7',
+  notes:      'background:#E1F5EE;color:#0F6E56',
+  design:     'background:#FBEAF0;color:#993556',
+  productivity:'background:#E6F1FB;color:#185FA5',
+  coding:     'background:#EEEDFE;color:#3C3489',
+  learning:   'background:#FAEEDA;color:#854F0B',
+  storage:    'background:#E6F1FB;color:#185FA5',
+  vpn:        'background:#E1F5EE;color:#0F6E56',
+  password:   'background:#FAECE7;color:#993C1D',
+  music:      'background:#FBEAF0;color:#993556',
+  fitness:    'background:#EAF3DE;color:#3B6D11',
+  finance:    'background:#EAF3DE;color:#3B6D11',
+  other:      'background:#F1EFE8;color:#5F5E5A',
+};
+
+let tools = JSON.parse(localStorage.getItem('stacktrim_tools') || 'null') || [
+  { id:1, name:'ChatGPT Plus',   cost:20, category:'ai',       usage:'daily',   pain:'high',   purpose:'writing, coding help' },
+  { id:2, name:'Claude Pro',     cost:20, category:'ai',       usage:'weekly',  pain:'medium', purpose:'writing, research' },
+  { id:3, name:'Notion',         cost:16, category:'notes',    usage:'daily',   pain:'medium', purpose:'notes, docs' },
+  { id:4, name:'Perplexity Pro', cost:20, category:'ai',       usage:'rarely',  pain:'low',    purpose:'search' },
+  { id:5, name:'Coursera Plus',  cost:59, category:'learning', usage:'monthly', pain:'low',    purpose:'learning' },
+];
+let nextId = 100;
+
+function save() {
+  try { localStorage.setItem('stacktrim_tools', JSON.stringify(tools)); } catch(e) {}
+}
+
+/* ─── Scoring ───────────────────────────────────────────────── */
+
+function score(tool) {
+  let s = 0;
+  // Usage
+  if (tool.usage === 'daily')   s += 4;
+  else if (tool.usage === 'weekly')  s += 2;
+  else if (tool.usage === 'monthly') s -= 1;
+  else                                s -= 3;  // rarely
+  // Pain
+  if (tool.pain === 'high')   s += 3;
+  else if (tool.pain === 'medium') s += 1;
+  else                              s -= 2;  // low
+  // Cost
+  if      (tool.cost <= 5)  s += 1;
+  else if (tool.cost <= 15) s += 0;
+  else if (tool.cost <= 30) s -= 2;
+  else                       s -= 4;
+  // Overlap penalty
+  const overlap = tools.filter(t => t.id !== tool.id && t.category === tool.category).length;
+  s -= overlap * 3;
+  return s;
+}
+
+function verdict(s) {
+  if (s >= 5)  return 'keep';
+  if (s >= 2)  return 'downgrade';
+  if (s >= -1) return 'review';
+  return 'cancel';
+}
+
+const VERDICT_LABEL = { keep:'KEEP', downgrade:'DOWNGRADE', review:'REVIEW', cancel:'CANCEL' };
+const VERDICT_CLASS = { keep:'badge-keep', downgrade:'badge-downgrade', review:'badge-review', cancel:'badge-cancel' };
+
+function reason(tool, s) {
+  const v = verdict(s);
+  const overlap = tools.filter(t => t.id !== tool.id && t.category === tool.category);
+  if (v === 'cancel') {
+    let r = `Used ${tool.usage} — costs $${tool.cost}/mo.`;
+    if (overlap.length) r += ` Overlaps with: ${overlap.map(t => t.name).join(', ')}.`;
+    return r;
+  }
+  if (v === 'downgrade') return `Used ${tool.usage} — consider downgrading to a cheaper or free tier.`;
+  if (v === 'review')    return `Worth reviewing — used ${tool.usage}, costs $${tool.cost}/mo.`;
+  return `Core tool — used ${tool.usage} and rated high pain to remove.`;
+}
+
+function calcSavings() {
+  return tools.reduce((sum, t) => {
+    const v = verdict(score(t));
+    if (v === 'cancel' || v === 'review') return sum + t.cost;
+    if (v === 'downgrade') return sum + Math.round(t.cost * 0.5);
+    return sum;
+  }, 0);
+}
+
+/* ─── Navigation ────────────────────────────────────────────── */
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('nav button').forEach((b, i) => {
+    b.classList.toggle('active', ['dashboard','add','audit','export'][i] === tab);
+  });
+  if (tab === 'dashboard') renderDashboard();
+  if (tab === 'add')       renderAdd();
+  if (tab === 'audit')     renderAudit();
+  if (tab === 'export')    renderExport();
+}
+
+/* ─── Dashboard ─────────────────────────────────────────────── */
+
+function renderDashboard() {
+  const total   = tools.reduce((s, t) => s + t.cost, 0);
+  const savings = calcSavings();
+  const keep    = tools.filter(t => verdict(score(t)) === 'keep').length;
+  const cut     = tools.filter(t => ['cancel','review'].includes(verdict(score(t)))).length;
+  const worst   = [...tools].sort((a, b) => score(a) - score(b)).slice(0, 3);
+
+  let html = `
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Monthly spend</div><div class="metric-value spend">$${total.toFixed(0)}</div></div>
+      <div class="metric"><div class="metric-label">Yearly spend</div><div class="metric-value spend">$${(total*12).toFixed(0)}</div></div>
+      <div class="metric"><div class="metric-label">Savings / mo</div><div class="metric-value savings">$${savings.toFixed(0)}</div></div>
+      <div class="metric"><div class="metric-label">Savings / yr</div><div class="metric-value savings">$${(savings*12).toFixed(0)}</div></div>
+      <div class="metric"><div class="metric-label">Keep</div><div class="metric-value">${keep}</div></div>
+      <div class="metric"><div class="metric-label">Cut</div><div class="metric-value">${cut}</div></div>
+    </div>`;
+
+  if (tools.length === 0) {
+    html += `<div class="empty-state"><i class="ti ti-apps"></i>No tools yet. Add your subscriptions to get started.<br><br>
+      <button class="btn-primary" onclick="showTab('add')">Add your first tool</button></div>`;
+  } else {
+    html += `<div class="section-title">Worst offenders</div><div class="card">`;
+    worst.forEach(t => {
+      const s = score(t);
+      const v = verdict(s);
+      html += `<div class="worst-item">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="tool-icon" style="${ICON_STYLE[t.category]}"><i class="ti ${ICONS[t.category]||'ti-apps'}"></i></div>
+          <div>
+            <div class="tool-name">${t.name}</div>
+            <div class="tool-meta">${t.category} · ${t.usage}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="tool-cost">$${t.cost}/mo</span>
+          <span class="badge ${VERDICT_CLASS[v]}">${VERDICT_LABEL[v]}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div>
+    <button class="btn-primary" style="width:100%;margin-top:0.5rem;" onclick="showTab('audit')">See full audit →</button>`;
+  }
+
+  document.getElementById('tab-dashboard').innerHTML = html;
+}
+
+/* ─── Add Tool ──────────────────────────────────────────────── */
+
+function renderAdd() {
+  document.getElementById('tab-add').innerHTML = `
+    <div class="section-title">Add a subscription or tool</div>
+    <div class="tip"><i class="ti ti-bulb" style="color:#185fa5;margin-right:6px;"></i>Add every app, AI tool, SaaS, or subscription you pay for — even the ones you forgot about.</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Tool / app name</label>
+        <input type="text" id="f-name" placeholder="e.g. ChatGPT Plus, Notion, Canva Pro…">
+      </div>
+      <div class="form-group">
+        <label>Monthly cost ($)</label>
+        <input type="number" id="f-cost" min="0" step="0.01" placeholder="20">
+      </div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="f-cat">
+          <option value="ai">AI assistant</option>
+          <option value="notes">Notes / docs</option>
+          <option value="design">Design</option>
+          <option value="productivity">Productivity</option>
+          <option value="coding">Coding / dev</option>
+          <option value="learning">Learning</option>
+          <option value="storage">Storage / backup</option>
+          <option value="vpn">VPN / security</option>
+          <option value="password">Password manager</option>
+          <option value="music">Music / media</option>
+          <option value="fitness">Fitness</option>
+          <option value="finance">Finance</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>How often do you use it?</label>
+        <select id="f-usage">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="rarely">Rarely / forgot I had it</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pain if removed?</label>
+        <select id="f-pain">
+          <option value="high">High — I rely on it</option>
+          <option value="medium">Medium — would miss it</option>
+          <option value="low">Low — could live without it</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Main purpose (optional)</label>
+        <input type="text" id="f-purpose" placeholder="e.g. writing, coding, design, notes…">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="addTool()">Add tool</button>
+  `;
+}
+
+function addTool() {
+  const name = document.getElementById('f-name').value.trim();
+  const cost = parseFloat(document.getElementById('f-cost').value) || 0;
+  if (!name) { alert('Please enter a tool name.'); return; }
+  tools.push({
+    id: nextId++,
+    name,
+    cost,
+    category: document.getElementById('f-cat').value,
+    usage:    document.getElementById('f-usage').value,
+    pain:     document.getElementById('f-pain').value,
+    purpose:  document.getElementById('f-purpose').value.trim(),
+  });
+  save();
+  document.getElementById('f-name').value    = '';
+  document.getElementById('f-cost').value    = '';
+  document.getElementById('f-purpose').value = '';
+  showTab('audit');
+}
+
+/* ─── Audit ─────────────────────────────────────────────────── */
+
+function deleteTool(id) {
+  tools = tools.filter(t => t.id !== id);
+  save();
+  renderAudit();
+}
+
+function renderAudit() {
+  if (tools.length === 0) {
+    document.getElementById('tab-audit').innerHTML = `
+      <div class="empty-state"><i class="ti ti-report"></i>No tools added yet.<br><br>
+      <button class="btn-primary" onclick="showTab('add')">Add tools to audit</button></div>`;
+    return;
+  }
+  const sorted = [...tools].sort((a, b) => score(a) - score(b));
+  let html = `<div class="section-title">Full audit (${tools.length} tool${tools.length !== 1 ? 's' : ''})</div>`;
+  sorted.forEach(t => {
+    const s  = score(t);
+    const v  = verdict(s);
+    const rep = REPLACEMENTS[t.category] || REPLACEMENTS.other;
+    const showReplacement = v === 'cancel' || v === 'review';
+    html += `
+      <div class="card">
+        <div class="tool-row">
+          <div class="tool-icon" style="${ICON_STYLE[t.category]}"><i class="ti ${ICONS[t.category]||'ti-apps'}"></i></div>
+          <div class="tool-info">
+            <div class="tool-name">${t.name}</div>
+            <div class="tool-meta">${t.category}${t.purpose ? ' · ' + t.purpose : ''}</div>
+          </div>
+          <div class="tool-right">
+            <span class="tool-cost">$${t.cost}/mo</span>
+            <span class="badge ${VERDICT_CLASS[v]}">${VERDICT_LABEL[v]}</span>
+            <button class="btn-delete" onclick="deleteTool(${t.id})" aria-label="Remove ${t.name}">
+              <i class="ti ti-x"></i>
+            </button>
+          </div>
+        </div>
+        <div class="verdict-reason">
+          ${reason(t, s)}
+          ${showReplacement ? `<div class="replacement"><i class="ti ti-arrow-right" style="font-size:11px;"></i> Free alternative: ${rep.free} — ${rep.tip}</div>` : ''}
+        </div>
+      </div>`;
+  });
+  document.getElementById('tab-audit').innerHTML = html;
+}
+
+/* ─── Report ────────────────────────────────────────────────── */
+
+function renderExport() {
+  const total    = tools.reduce((s, t) => s + t.cost, 0);
+  const savings  = calcSavings();
+  const cancel   = tools.filter(t => ['cancel','review'].includes(verdict(score(t))));
+  const keep     = tools.filter(t => verdict(score(t)) === 'keep');
+  const downgrade = tools.filter(t => verdict(score(t)) === 'downgrade');
+  const date     = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+  const report = `══════════════════════════════════
+  STACKTRIM — SUBSCRIPTION AUDIT
+  ${date}
+══════════════════════════════════
+
+SUMMARY
+  Monthly spend:      $${total.toFixed(2)}
+  Recommended cuts:   $${savings.toFixed(2)}/mo
+  Estimated savings:  $${(savings * 12).toFixed(0)}/year
+
+══════════════════════════════════
+
+✓ KEEP (${keep.length} tool${keep.length !== 1 ? 's' : ''})
+${keep.map(t => `  • ${t.name}  —  $${t.cost}/mo`).join('\n') || '  None'}
+
+↓ DOWNGRADE (${downgrade.length} tool${downgrade.length !== 1 ? 's' : ''})
+${downgrade.map(t => `  • ${t.name}  —  $${t.cost}/mo → try free tier`).join('\n') || '  None'}
+
+✕ CANCEL OR REPLACE (${cancel.length} tool${cancel.length !== 1 ? 's' : ''})
+${cancel.map(t => {
+    const rep = REPLACEMENTS[t.category] || REPLACEMENTS.other;
+    return `  • ${t.name}  —  $${t.cost}/mo\n    → ${rep.free}`;
+  }).join('\n') || '  None'}
+
+══════════════════════════════════
+  You could save $${(savings * 12).toFixed(0)}/year.
+  Generated by StackTrim
+══════════════════════════════════`;
+
+  window._reportText = report;
+
+  document.getElementById('tab-export').innerHTML = `
+    ${savings > 0 ? `
+    <div class="savings-hero">
+      <div class="savings-big">$${(savings * 12).toFixed(0)}</div>
+      <div class="savings-sub">potential yearly savings · $${savings.toFixed(0)}/month to cut</div>
+    </div>` : ''}
+    <div style="display:flex;gap:8px;margin-bottom:1rem;">
+      <button class="btn-primary" onclick="copyReport()">
+        <i class="ti ti-copy"></i> Copy report
+      </button>
+      <button class="btn-secondary" onclick="downloadReport()">
+        <i class="ti ti-download"></i> Download .txt
+      </button>
+    </div>
+    <div class="report-block">${report}</div>
+  `;
+}
+
+function copyReport() {
+  if (!window._reportText) return;
+  navigator.clipboard.writeText(window._reportText).then(() => {
+    const btn = document.querySelector('#tab-export .btn-primary');
+    if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy"></i> Copy report'; }, 1500); }
+  });s
+}
+
+function downloadReport() {
+  if (!window._reportText) return;
+  const blob = new Blob([window._reportText], { type: 'text/plain' });
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = 'stacktrim-audit.txt';
+  a.click();
+}
+
+/* ─── Init ───────────────────────────────────────────────────── */
+showTab('dashboard');
+</script>
+</body>
+</html>
