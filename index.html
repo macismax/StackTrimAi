@@ -686,6 +686,7 @@
         </div>
       </div>
       <div class="top-actions">
+        <button id="top-get-pro-btn" type="button" class="btn btn-primary btn-small" onclick="startCheckout()" style="display:none;"><i class="ti ti-crown"></i> Get Pro</button>
         <span id="pro-status-badge" class="badge badge-muted" onclick="openProModal()" role="button" tabindex="0" title="Free or Pro plan">Free</span>
         <button class="btn btn-secondary btn-small" onclick="openPrivacyModal()">
           <i class="ti ti-shield-lock"></i> Privacy
@@ -766,10 +767,10 @@
         <div><strong>Free</strong><br>Up to 8 subscriptions · quick-add chips · core alternatives</div>
         <div><strong>Pro — $9 one-time</strong><br>Unlimited paste/CSV import · full report export · backup/restore · smart plans</div>
       </div>
-      <p style="font-size:12px;color:var(--text3);">Replace <code>PRO_CHECKOUT_URL</code> in the app with your Stripe/Gumroad link when ready.</p>
+      <p id="pro-checkout-hint" style="font-size:13px;color:var(--text2);line-height:1.5;"></p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
-        <a id="pro-checkout-link" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer" style="display:none;"><i class="ti ti-credit-card"></i> Get Pro</a>
-        <button class="btn btn-primary" onclick="unlockProDemo()"><i class="ti ti-key"></i> I already paid / unlock</button>
+        <a id="pro-checkout-link" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer" onclick="startCheckout(event)" style="display:none;"><i class="ti ti-credit-card"></i> Get Pro — $9</a>
+        <button class="btn btn-secondary" onclick="unlockProDemo()"><i class="ti ti-key"></i> I already paid — unlock</button>
         <button class="btn btn-secondary" onclick="closeModal('pro-modal')">Not now</button>
       </div>
     </div>
@@ -824,8 +825,11 @@
     const PRO_STORAGE_KEY = 'stacktrim_pro';
     const FREE_SUB_LIMIT = 8;
     const FREE_BULK_LINES = 6;
-    /** Set your Stripe / Gumroad / Lemon Squeezy checkout URL to show a real pay button */
-    const PRO_CHECKOUT_URL = 'https://stack-trim-ai.vercel.app/';
+
+    // Paste your Stripe Payment Link (https://buy.stripe.com/...) — leave '' until ready
+    const PRO_CHECKOUT_URL = '';
+    // Customers enter this in the app after paying (put same text in Stripe receipt email)
+    const PRO_UNLOCK_CODE = 'STACKTRIM-PRO';
 
     const QUICK_ADD = [
       { name: 'Netflix', cost: 15.49, category: 'streaming' },
@@ -992,17 +996,54 @@
       return false;
     }
 
+    function hasCheckout() {
+      const url = String(PRO_CHECKOUT_URL || '').trim();
+      if (!url || url === '#') return false;
+      if (!/^https?:\/\//i.test(url)) return false;
+      try {
+        const target = new URL(url);
+        const here = new URL(window.location.href);
+        if (target.origin === here.origin) return false;
+      } catch {
+        return false;
+      }
+      return true;
+    }
+
+    function startCheckout(event) {
+      if (event) event.preventDefault();
+      if (!hasCheckout()) {
+        openProModal();
+        showToast('Checkout link not configured yet.');
+        return;
+      }
+      window.open(PRO_CHECKOUT_URL.trim(), '_blank', 'noopener,noreferrer');
+    }
+
+    function syncProModalButtons() {
+      const checkout = document.getElementById('pro-checkout-link');
+      const hint = document.getElementById('pro-checkout-hint');
+      const ready = hasCheckout();
+      if (checkout) {
+        checkout.href = ready ? PRO_CHECKOUT_URL.trim() : '#';
+        checkout.style.display = ready ? 'inline-flex' : 'none';
+      }
+      if (hint) {
+        hint.textContent = ready
+          ? `One-time $9 — opens secure checkout in a new tab. After paying, tap “I already paid” and enter ${PRO_UNLOCK_CODE}.`
+          : 'Pro is $9 one-time. If you already purchased, use “I already paid” with your unlock code.';
+      }
+    }
+
     function updateProUI() {
       const badge = document.getElementById('pro-status-badge');
       if (badge) {
         badge.textContent = isPro() ? 'Pro' : `Free · ${subsRemaining()} left`;
         badge.className = isPro() ? 'badge pro-badge-top' : 'badge badge-muted';
       }
-      const checkout = document.getElementById('pro-checkout-link');
-      if (checkout && PRO_CHECKOUT_URL) {
-        checkout.href = PRO_CHECKOUT_URL;
-        checkout.style.display = 'inline-flex';
-      }
+      const topPro = document.getElementById('top-get-pro-btn');
+      if (topPro) topPro.style.display = hasCheckout() && !isPro() ? 'inline-flex' : 'none';
+      syncProModalButtons();
       renderUpgradeBanner();
     }
 
@@ -1025,20 +1066,23 @@
             <strong>${atLimit ? 'Free limit reached' : 'Almost at the free limit'}</strong>
             <span>${atLimit ? 'Upgrade to Pro to add more subs and unlock CSV + full export.' : `${subsRemaining()} free slot(s) left — Pro removes the cap.`}</span>
           </div>
-          <button class="btn btn-primary btn-small" onclick="openProModal()"><i class="ti ti-crown"></i> Go Pro — $9</button>
+          <button class="btn btn-primary btn-small" onclick="${hasCheckout() ? 'startCheckout()' : 'openProModal()'}"><i class="ti ti-crown"></i> Go Pro — $9</button>
         </div>`;
     }
 
     function openProModal() {
+      syncProModalButtons();
       document.getElementById('pro-modal').classList.add('show');
     }
 
     function unlockProDemo() {
-      const code = prompt('Enter your Pro unlock code (from receipt), or leave blank to cancel:');
+      const code = prompt(`Enter your Pro unlock code (from your receipt).\n\nCode: ${PRO_UNLOCK_CODE}`);
       if (code === null) return;
-      const ok = /^STACKTRIM-?PRO$/i.test(code.trim()) || code.trim() === 'demo';
+      const normalized = code.trim().toUpperCase().replace(/\s+/g, '');
+      const expected = PRO_UNLOCK_CODE.toUpperCase().replace(/\s+/g, '');
+      const ok = normalized === expected || normalized === 'STACKTRIMPRO' || code.trim().toLowerCase() === 'demo';
       if (!ok) {
-        showToast('Invalid code. Use STACKTRIM-PRO after purchase.');
+        showToast(`Invalid code. Use ${PRO_UNLOCK_CODE} from your purchase email.`);
         return;
       }
       setPro(true);
@@ -1933,7 +1977,7 @@
         <div class="value-grid" style="margin-top:1rem;">
           <div class="value-card"><i class="ti ti-clock"></i><strong>Save time</strong><span>Paste 20+ charges once instead of typing each sub. That is what Pro is for.</span></div>
           <div class="value-card"><i class="ti ti-coin"></i><strong>Save money</strong><span>You track ${money(total)}/mo now — up to ${money(savings)}/mo in possible cuts with swaps above.</span></div>
-          <div class="value-card"><i class="ti ti-crown"></i><strong>Pro — $9 once</strong><span>Unlimited subs, CSV import, backup, full export. <button class="btn btn-primary btn-small" style="margin-top:8px;" onclick="openProModal()">Upgrade</button></span></div>
+          <div class="value-card"><i class="ti ti-crown"></i><strong>Pro — $9 once</strong><span>Unlimited subs, CSV import, backup, full export. <button class="btn btn-primary btn-small" style="margin-top:8px;" onclick="hasCheckout() ? startCheckout() : openProModal()">Upgrade</button></span></div>
         </div>`;
     }
 
