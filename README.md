@@ -2,22 +2,33 @@
 
 Paste your subscriptions, get cheaper alternatives, and a simple cancel/downgrade plan. Runs entirely in the browser — no account required.
 
-## Deploy on Vercel (recommended)
+## Deploy on Vercel
 
-Vercel scans for `app.py` and expects `app = Flask(...)`. This repo includes:
+**There is no `app.py` in the project root** — Vercel deploys `index.html` as a static site.
 
-- **`vercel.json`** — serves `index.html` as a static site
-- **`.vercelignore`** — excludes `app.py` so Vercel uses static mode (no Python error)
+1. Push this repo to GitHub
+2. [vercel.com](https://vercel.com) → Add Project → import repo
+3. Leave **Build Command** and **Install Command** empty
+4. Deploy
 
-Push to GitHub and import the repo in Vercel. No start command needed.
-
-If you remove `.vercelignore`, `app.py` is a valid Flask app Vercel can run instead.
+`vercel.json` handles routing. If you still see a Python/`app.py` error, in Vercel → Settings → General set **Framework Preset** to **Other** and redeploy with cache disabled.
 
 ## Share it (other hosts)
 
-1. Host the folder (GitHub Pages, Netlify Drop, Cloudflare Pages):
-   - **GitHub Pages:** repo → Settings → Pages → deploy from `main` / root → your site is `https://<user>.github.io/<repo>/`
-2. Send people the link. They paste from iPhone **Settings → Subscriptions**, bank app, or a notes list.
+- **GitHub Pages:** Settings → Pages → deploy from `main` / root
+- **Netlify / Cloudflare Pages:** drag the folder or connect the repo (static)
+
+## Python host (Railway / Render) — optional
+
+Use the `server/` folder (not used by Vercel):
+
+```bash
+cd server
+pip install -r requirements.txt
+gunicorn app:app --bind 0.0.0.0:8080
+```
+
+Set the platform root directory to `server` and point static files at the parent `index.html` (or deploy the whole repo with start command from `server/`).
 
 ## Free vs Pro
 
@@ -30,29 +41,12 @@ If you remove `.vercelignore`, `app.py` is a valid Flask app Vercel can run inst
 | Copy report | ✓ | ✓ |
 | CSV import, download, JSON backup | — | ✓ |
 
-**Monetization setup:** In `index.html`, set `PRO_CHECKOUT_URL` to your Stripe Payment Link or Gumroad URL. After purchase, give customers unlock code `STACKTRIM-PRO` (stored in browser localStorage).
-
-For testing: **Pro** modal → “I already paid / unlock” → code `demo` or `STACKTRIM-PRO`.
-
-## Privacy
-
-Data stays in `localStorage` on the user’s device. No backend in this version.
+Set `PRO_CHECKOUT_URL` in `index.html` for your payment link. Unlock code after purchase: `STACKTRIM-PRO` (test: `demo`).
 
 ## Local preview
 
-**Static (simplest):**
-
 ```bash
-cd /path/to/StackTrimAi
+cd StackTrimAi
 python3 -m http.server 8080
-# open http://localhost:8080
+# http://localhost:8080
 ```
-
-**Python host (Railway, Render, Heroku):** `app.py` exposes `app` for gunicorn. Start command:
-
-```bash
-pip install -r requirements.txt
-gunicorn app:app --bind 0.0.0.0:8080
-```
-
-Or use the included `Procfile` on platforms that read it.
