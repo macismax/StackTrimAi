@@ -1,20 +1,32 @@
-"""Serves StackTrim (static index.html) for Python hosts (Railway, Render, etc.)."""
+"""StackTrim static site — stdlib WSGI (no Flask required at import time)."""
+import mimetypes
 import os
 
-from flask import Flask, send_from_directory
-
-app = Flask(__name__)
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
-@app.route("/")
-def index():
-    return send_from_directory(ROOT, "index.html")
+def _file_response(path_info: str):
+    rel = (path_info or "/").lstrip("/") or "index.html"
+    safe = os.path.normpath(os.path.join(ROOT, rel))
+    if not safe.startswith(ROOT):
+        safe = os.path.join(ROOT, "index.html")
+    if not os.path.isfile(safe):
+        safe = os.path.join(ROOT, "index.html")
+    with open(safe, "rb") as f:
+        body = f.read()
+    mime, _ = mimetypes.guess_type(safe)
+    return body, mime or "text/html; charset=utf-8"
 
 
-@app.route("/<path:filename>")
-def static_file(filename):
-    path = os.path.join(ROOT, filename)
-    if os.path.isfile(path):
-        return send_from_directory(ROOT, filename)
-    return send_from_directory(ROOT, "index.html")
+def app(environ, start_response):
+    body, content_type = _file_response(environ.get("PATH_INFO", "/"))
+    start_response(
+        "200 OK",
+        [("Content-Type", content_type), ("Content-Length", str(len(body)))],
+    )
+    return [body]
+
+
+# Hosts look for any of these names at module level
+application = app
+handler = app
