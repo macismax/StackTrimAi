@@ -337,6 +337,48 @@
       line-height: 1.45;
     }
 
+
+
+    .value-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 1rem 0;
+    }
+    .value-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .value-card i { font-size: 20px; color: var(--purple-text); }
+    .value-card strong { display:block; margin-top: 8px; font-size: 14px; }
+    .value-card span { display:block; margin-top: 4px; color: var(--text2); font-size: 12px; line-height: 1.45; }
+    .bulk-help { font-size: 12px; color: var(--text2); margin-top: 6px; line-height: 1.45; }
+
+    .preview-table-wrap { overflow-x: auto; border: 0.5px solid var(--border); border-radius: var(--radius-md); margin-top: 1rem; background: var(--bg); }
+    .preview-table { width: 100%; border-collapse: collapse; min-width: 650px; }
+    .preview-table th, .preview-table td { text-align: left; padding: 10px 12px; border-bottom: 0.5px solid var(--border); font-size: 12px; vertical-align: top; }
+    .preview-table th { color: var(--text2); font-weight: 700; background: var(--bg2); }
+    .preview-table tr:last-child td { border-bottom: none; }
+    .preview-muted { color: var(--text3); font-size: 12px; }
+    .pro-panel { background: linear-gradient(135deg, var(--purple-bg), var(--blue-bg)); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.25rem; margin: 1rem 0; }
+    .pro-panel h3 { font-size: 17px; margin-bottom: 6px; }
+    .pro-panel p { color: var(--text2); font-size: 13px; line-height: 1.5; }
+    .pro-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+    .pro-list div { background: rgba(255,255,255,0.38); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px; font-size: 12px; color: var(--text2); }
+    @media (prefers-color-scheme: dark) { .pro-list div { background: rgba(0,0,0,0.18); } }
+    .plan-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 1rem 0; }
+    .plan-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; box-shadow: var(--shadow); }
+    .plan-card h3 { display:flex; align-items:center; gap:8px; font-size: 15px; margin-bottom: 6px; }
+    .plan-card p { font-size: 12px; color: var(--text2); line-height: 1.5; margin-top: 4px; }
+    .script-box { margin-top: 8px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--bg2); font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+    .mini-pill-row { display:flex; flex-wrap:wrap; gap:6px; margin: 8px 0 0; }
+    .mini-pill { font-size: 11px; color: var(--text2); border: 0.5px solid var(--border); background: var(--bg2); padding: 3px 8px; border-radius: 999px; }
+    .category-insight { margin-top: 8px; padding: 9px 10px; border-radius: var(--radius-sm); background: var(--bg2); color: var(--text2); font-size: 12px; line-height: 1.45; }
+
     .empty-state {
       text-align: center;
       padding: 3rem 1rem;
@@ -469,6 +511,8 @@
       .hero-grid { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .alt-grid { grid-template-columns: 1fr; }
+      .value-grid { grid-template-columns: 1fr; }
+      .pro-list, .plan-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 520px) {
@@ -509,8 +553,8 @@
         <div>
           <h2>Stop paying for tools you barely use.</h2>
           <p>
-            Add your AI apps, subscriptions, learning platforms, and software tools.
-            StackTrim finds overlap, estimates possible savings, and gives cheaper replacement ideas.
+            Paste your subscriptions all at once or add them manually: food delivery, streaming, music, AI, apps, and software.
+            StackTrim detects categories, finds overlap, estimates savings, and turns messy charges into a simple cancel/downgrade plan.
           </p>
           <div class="hero-actions">
             <button class="btn btn-primary" onclick="showTab('add')">
@@ -532,6 +576,7 @@
     <nav aria-label="Main navigation">
       <button class="active" onclick="showTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
       <button onclick="showTab('add')"><i class="ti ti-plus"></i> Add tool</button>
+      <button onclick="showTab('bulk')"><i class="ti ti-list-plus"></i> Bulk import</button>
       <button onclick="showTab('audit')"><i class="ti ti-report-analytics"></i> Audit</button>
       <button onclick="showTab('alternatives')"><i class="ti ti-switch-horizontal"></i> Alternatives</button>
       <button onclick="showTab('report')"><i class="ti ti-file-text"></i> Report</button>
@@ -540,13 +585,14 @@
     <main>
       <div id="tab-dashboard" class="tab active"></div>
       <div id="tab-add" class="tab"></div>
+      <div id="tab-bulk" class="tab"></div>
       <div id="tab-audit" class="tab"></div>
       <div id="tab-alternatives" class="tab"></div>
       <div id="tab-report" class="tab"></div>
     </main>
 
     <footer class="footer">
-      StackTrim MVP saves data only in your browser using localStorage. No accounts, no external AI calls, and no payment processing are included in this version.
+      StackTrim MVP saves data only in your browser using localStorage. This version has no accounts, no external AI calls, and no real payment processing yet — paid features are presented as product positioning only.
     </footer>
   </div>
 
@@ -572,6 +618,11 @@
 
     const CATEGORY_META = {
       ai: { label: 'AI', icon: 'ti-robot', style: 'background:#EEEDFE;color:#534AB7' },
+      streaming: { label: 'Streaming / TV', icon: 'ti-device-tv', style: 'background:#E6F1FB;color:#185FA5' },
+      music: { label: 'Music', icon: 'ti-music', style: 'background:#FBEAF0;color:#993556' },
+      food: { label: 'Food Delivery', icon: 'ti-tools-kitchen-2', style: 'background:#FAEEDA;color:#854F0B' },
+      media: { label: 'Media / News', icon: 'ti-news', style: 'background:#FAECE7;color:#993C1D' },
+      gaming: { label: 'Gaming', icon: 'ti-device-gamepad-2', style: 'background:#EEEDFE;color:#3C3489' },
       notes: { label: 'Notes', icon: 'ti-notebook', style: 'background:#E1F5EE;color:#0F6E56' },
       design: { label: 'Design', icon: 'ti-palette', style: 'background:#FBEAF0;color:#993556' },
       productivity: { label: 'Productivity', icon: 'ti-checkbox', style: 'background:#E6F1FB;color:#185FA5' },
@@ -580,7 +631,6 @@
       storage: { label: 'Storage', icon: 'ti-cloud', style: 'background:#E6F1FB;color:#185FA5' },
       vpn: { label: 'VPN', icon: 'ti-shield', style: 'background:#E1F5EE;color:#0F6E56' },
       password: { label: 'Password', icon: 'ti-lock', style: 'background:#FAECE7;color:#993C1D' },
-      music: { label: 'Music', icon: 'ti-music', style: 'background:#FBEAF0;color:#993556' },
       fitness: { label: 'Fitness', icon: 'ti-run', style: 'background:#EAF3DE;color:#3B6D11' },
       finance: { label: 'Finance', icon: 'ti-coin', style: 'background:#EAF3DE;color:#3B6D11' },
       other: { label: 'Other', icon: 'ti-apps', style: 'background:#F1EFE8;color:#5F5E5A' }
@@ -588,9 +638,34 @@
 
     const ALTERNATIVES = {
       ai: [
-        { name: 'ChatGPT Free', price: 'Free tier', desc: 'Good general AI helper without paying monthly.', pros: ['General chat', 'Coding help', 'No setup'], url: 'https://chatgpt.com' },
-        { name: 'Claude Free', price: 'Free tier', desc: 'Strong writing and reasoning assistant with a free plan.', pros: ['Writing', 'Long prompts', 'Research help'], url: 'https://claude.ai' },
-        { name: 'Ollama', price: 'Free / local', desc: 'Run open models locally for private experiments and coding help.', pros: ['Local', 'No monthly fee', 'Great for tinkering'], url: 'https://ollama.com' }
+        { name: 'Use one paid AI only', price: 'Save $20+/mo', desc: 'If someone has ChatGPT, Claude, Perplexity, and a coding AI, the first win is picking one paid assistant and using free tiers for the rest.', pros: ['Cuts overlap', 'Easy switch', 'Best for most users'], url: 'https://chatgpt.com' },
+        { name: 'Claude / ChatGPT free tiers', price: 'Free tier', desc: 'Good enough for occasional writing, school help, or quick questions without another monthly bill.', pros: ['No monthly cost', 'Good for light use', 'No setup'], url: 'https://claude.ai' },
+        { name: 'Ollama', price: 'Free / local', desc: 'Run local models for private experiments and coding practice if your computer can handle it.', pros: ['Local', 'No subscription', 'Great for tinkering'], url: 'https://ollama.com' }
+      ],
+      streaming: [
+        { name: 'Rotate one service monthly', price: 'Save $15–$60/mo', desc: 'Keep only one streaming service active at a time, binge what you want, then cancel and rotate next month.', pros: ['Biggest savings', 'Still watch favorites', 'No long-term lock'], url: 'https://www.justwatch.com' },
+        { name: 'Tubi / Pluto TV / Freevee', price: 'Free with ads', desc: 'Free TV and movies with ads. Great replacement for low-usage streaming subscriptions.', pros: ['Free', 'TV + movies', 'No commitment'], url: 'https://tubitv.com' },
+        { name: 'Library streaming', price: 'Free with library card', desc: 'Kanopy and Hoopla can provide movies, shows, audiobooks, and media through participating libraries.', pros: ['Free', 'Legal', 'Often overlooked'], url: 'https://www.kanopy.com' }
+      ],
+      music: [
+        { name: 'Spotify or YouTube Music free', price: 'Free with ads', desc: 'If usage is casual, a free tier may be enough instead of paying every month.', pros: ['Free', 'Huge catalogs', 'Easy downgrade'], url: 'https://www.spotify.com' },
+        { name: 'Family/student plan check', price: 'Lower monthly cost', desc: 'If music is daily/high-pain, do not cancel first. Check student/family pricing or annual billing instead.', pros: ['Keeps convenience', 'Lower cost', 'Good for daily users'], url: 'https://www.spotify.com/student' },
+        { name: 'Library audiobooks/music', price: 'Free with library card', desc: 'Hoopla and Libby can replace some paid audiobook/music/media spending.', pros: ['Free', 'Audiobooks', 'Legal'], url: 'https://www.hoopladigital.com' }
+      ],
+      food: [
+        { name: 'Pickup instead of delivery', price: 'Save fees + tips', desc: 'For DoorDash/Uber Eats users, switching just 2 orders per month to pickup can beat the value of most paid dashboards.', pros: ['Immediate savings', 'Same restaurant', 'No subscription needed'], url: 'https://www.google.com/maps' },
+        { name: 'Grocery meal fallback list', price: '$10–$25/week', desc: 'Keep 3 default cheap meals at home so cravings do not turn into delivery fees.', pros: ['Reduces impulse orders', 'Still convenient', 'Easy habit'], url: 'https://www.walmart.com' },
+        { name: 'Cancel delivery memberships when low usage', price: 'Save $9–$10/mo', desc: 'DashPass/Uber One only makes sense if fee savings beat the membership cost every month.', pros: ['Good audit target', 'Clear break-even', 'Easy cancel'], url: 'https://www.doordash.com/dashpass' }
+      ],
+      media: [
+        { name: 'Library card stack', price: 'Free', desc: 'Libby, Hoopla, and Kanopy can replace some paid books, audiobooks, movies, and magazines.', pros: ['Free', 'Books + movies', 'Mobile apps'], url: 'https://www.overdrive.com/apps/libby' },
+        { name: 'RSS/newsletters instead of paid news', price: 'Free', desc: 'If a news subscription is rarely used, free newsletters and RSS readers may cover enough.', pros: ['Free', 'Less clutter', 'Good for casual readers'], url: 'https://feedly.com' },
+        { name: 'Annual plan or shared household plan', price: 'Lower effective cost', desc: 'For media you use daily, downgrading or switching billing can be better than canceling.', pros: ['Keeps access', 'Lower cost', 'Simple'], url: 'https://www.google.com/search?q=media+subscription+annual+plan' }
+      ],
+      gaming: [
+        { name: 'Rotate Game Pass / PS Plus / Nintendo', price: 'Save $10–$20/mo', desc: 'Subscribe only during months you actively play. Cancel during school/work-heavy months.', pros: ['Easy pause', 'Still play when active', 'Cuts idle spend'], url: 'https://www.xbox.com/xbox-game-pass' },
+        { name: 'Epic Games free games', price: 'Free', desc: 'Claim free PC games weekly and build a backlog without paying monthly.', pros: ['Free games', 'Legal', 'No subscription'], url: 'https://store.epicgames.com/free-games' },
+        { name: 'Local backlog rule', price: 'Free', desc: 'Do not renew a gaming subscription until you finish or uninstall 2 games from your backlog.', pros: ['Reduces waste', 'Better focus', 'No app needed'], url: 'https://store.steampowered.com' }
       ],
       notes: [
         { name: 'Obsidian', price: 'Free personal use', desc: 'Local markdown notes with strong organization and plugins.', pros: ['Local files', 'Markdown', 'Powerful linking'], url: 'https://obsidian.md' },
@@ -632,11 +707,6 @@
         { name: 'iCloud Keychain', price: 'Free', desc: 'Built into Apple devices and good for basic password management.', pros: ['Built-in', 'Easy autofill', 'Apple sync'], url: 'https://support.apple.com/en-us/109016' },
         { name: 'Google Password Manager', price: 'Free', desc: 'Basic password manager built into Chrome/Google accounts.', pros: ['Free', 'Easy', 'Chrome integration'], url: 'https://passwords.google.com' }
       ],
-      music: [
-        { name: 'Spotify Free', price: 'Free with ads', desc: 'Good enough if you can tolerate ads and limitations.', pros: ['Huge library', 'Playlists', 'Free'], url: 'https://www.spotify.com' },
-        { name: 'YouTube Music Free', price: 'Free with ads', desc: 'Useful if you already use YouTube a lot.', pros: ['Large catalog', 'Free', 'Videos'], url: 'https://music.youtube.com' },
-        { name: 'Library apps', price: 'Free with library card', desc: 'Some libraries provide free music, audiobooks, or media services.', pros: ['Free', 'Legal', 'Often overlooked'], url: 'https://www.hoopladigital.com' }
-      ],
       fitness: [
         { name: 'Nike Training Club', price: 'Free', desc: 'Free workouts and fitness programs.', pros: ['Free workouts', 'Beginner friendly', 'Mobile app'], url: 'https://www.nike.com/ntc-app' },
         { name: 'Nike Run Club', price: 'Free', desc: 'Good running tracker and guided run app.', pros: ['Free', 'Guided runs', 'Tracking'], url: 'https://www.nike.com/nrc-app' },
@@ -645,21 +715,24 @@
       finance: [
         { name: 'Google Sheets budget', price: 'Free', desc: 'A simple spreadsheet can replace many budgeting apps.', pros: ['Free', 'Customizable', 'Exportable'], url: 'https://sheets.google.com' },
         { name: 'Apple Numbers', price: 'Free on Apple devices', desc: 'Good simple spreadsheet option for Apple users.', pros: ['Free', 'Apple devices', 'Templates'], url: 'https://www.apple.com/numbers' },
-        { name: 'Monarch/Rocket Money alternatives', price: 'Review manually first', desc: 'Before paying for finance apps, manually audit bills and subscriptions.', pros: ['More control', 'No data linking', 'No subscription'], url: 'https://sheets.google.com' }
+        { name: 'Manual subscription audit', price: 'Free', desc: 'Before paying finance apps, manually audit bills and subscriptions to avoid giving bank access.', pros: ['More control', 'No data linking', 'No subscription'], url: 'https://sheets.google.com' }
       ],
       other: [
-        { name: 'Free tier search', price: 'Varies', desc: 'Most software categories have a strong free tier competitor.', pros: ['Lower cost', 'Flexible', 'Good first step'], url: 'https://alternativeto.net' },
+        { name: 'AlternativeTo', price: 'Varies', desc: 'Search for free and cheaper alternatives across many software categories.', pros: ['Broad database', 'Fast discovery', 'Free options'], url: 'https://alternativeto.net' },
         { name: 'Open-source alternatives', price: 'Usually free', desc: 'Search open-source tools before paying another subscription.', pros: ['Free', 'Community-built', 'Transparent'], url: 'https://github.com' },
         { name: 'One-time purchase apps', price: 'One-time', desc: 'Sometimes a one-time app is better than another monthly subscription.', pros: ['No monthly bill', 'Predictable', 'Simple'], url: 'https://alternativeto.net' }
       ]
     };
 
     const demoTools = [
-      { id: 1, name: 'ChatGPT Plus', cost: 20, category: 'ai', usage: 'daily', pain: 'high', purpose: 'coding and writing' },
-      { id: 2, name: 'Claude Pro', cost: 20, category: 'ai', usage: 'weekly', pain: 'medium', purpose: 'long writing' },
-      { id: 3, name: 'Perplexity Pro', cost: 20, category: 'ai', usage: 'rarely', pain: 'low', purpose: 'AI search' },
-      { id: 4, name: 'Canva Pro', cost: 15, category: 'design', usage: 'monthly', pain: 'medium', purpose: 'social posts' },
-      { id: 5, name: 'Coursera Plus', cost: 59, category: 'learning', usage: 'monthly', pain: 'low', purpose: 'courses' }
+      { id: 1, name: 'Netflix', cost: 15, category: 'streaming', usage: 'weekly', pain: 'medium', purpose: 'shows and movies' },
+      { id: 2, name: 'Hulu', cost: 18, category: 'streaming', usage: 'monthly', pain: 'low', purpose: 'one show' },
+      { id: 3, name: 'Spotify Premium', cost: 11, category: 'music', usage: 'daily', pain: 'high', purpose: 'music' },
+      { id: 4, name: 'DoorDash DashPass', cost: 10, category: 'food', usage: 'rarely', pain: 'low', purpose: 'delivery fees' },
+      { id: 5, name: 'Uber One', cost: 10, category: 'food', usage: 'monthly', pain: 'low', purpose: 'food delivery' },
+      { id: 6, name: 'ChatGPT Plus', cost: 20, category: 'ai', usage: 'daily', pain: 'high', purpose: 'coding and writing' },
+      { id: 7, name: 'Perplexity Pro', cost: 20, category: 'ai', usage: 'rarely', pain: 'low', purpose: 'AI search' },
+      { id: 8, name: 'Coursera Plus', cost: 59, category: 'learning', usage: 'monthly', pain: 'low', purpose: 'courses' }
     ];
 
     let tools = loadTools();
@@ -759,6 +832,23 @@
       const verdict = verdictFromScore(scoreTool(tool));
       const cost = Number(tool.cost) || 0;
       const overlap = tools.filter(t => t.id !== tool.id && t.category === tool.category);
+      const category = tool.category;
+
+      if (category === 'food') {
+        if (verdict === 'keep') return `Keep only if monthly fee savings beat the membership cost. Since this is used ${tool.usage}, compare it against actual delivery fees saved.`;
+        return `Food delivery subscriptions are easy to forget. Used ${tool.usage}, costs $${cost}/mo, and may be cheaper to replace with pickup or fewer impulse orders.`;
+      }
+      if (category === 'streaming') {
+        if (verdict === 'keep') return `Good candidate to keep if watched often. Still check whether another streaming service overlaps with it.`;
+        return `Streaming is perfect for rotation. Used ${tool.usage}, costs $${cost}/mo, and can likely be paused until there is something specific to watch.`;
+      }
+      if (category === 'music') {
+        if (verdict === 'keep') return `Daily music is high-value. Instead of canceling, look for student/family/annual pricing before paying full price.`;
+        return `If music is not daily, a free ad-supported tier may be enough. This costs $${cost}/mo and is used ${tool.usage}.`;
+      }
+      if (category === 'media') {
+        return `Media/news subscriptions stack up quietly. Used ${tool.usage}, costs $${cost}/mo, and may be replaceable with library apps, newsletters, or a cheaper annual plan.`;
+      }
 
       if (verdict === 'cancel') {
         let text = `Used ${tool.usage}. Costs $${cost}/mo.`;
@@ -787,6 +877,7 @@
 
       if (tab === 'dashboard') renderDashboard();
       if (tab === 'add') renderAdd();
+      if (tab === 'bulk') renderBulkImport();
       if (tab === 'audit') renderAudit();
       if (tab === 'alternatives') renderAlternatives();
       if (tab === 'report') renderReport();
@@ -853,19 +944,19 @@
 
     function renderAdd() {
       document.getElementById('tab-add').innerHTML = `
-        <div class="section-title">Add a subscription or tool</div>
-        <div class="tip">
-          Add AI tools, software subscriptions, apps, learning platforms, design tools, storage, VPNs, and anything else you pay for.
-        </div>
+        <div class="section-title">Add subscriptions</div>
+        <div class="section-sub">Add one subscription manually or paste a whole list at once. StackTrim works best when users add everything: food delivery, streaming, music, AI, apps, and software.</div>
+
         <div class="card">
+          <h3 style="font-size:15px;margin-bottom:10px;">Add one item</h3>
           <div class="form-grid">
             <div class="form-group full">
-              <label for="tool-name">Tool / app name</label>
-              <input id="tool-name" type="text" placeholder="e.g. ChatGPT Plus, Canva Pro, Notion..." autocomplete="off" />
+              <label for="tool-name">Subscription / app name</label>
+              <input id="tool-name" type="text" placeholder="e.g. Netflix, Spotify, DoorDash, ChatGPT..." autocomplete="off" />
             </div>
             <div class="form-group">
               <label for="tool-cost">Monthly cost ($)</label>
-              <input id="tool-cost" type="number" min="0" step="0.01" placeholder="20" />
+              <input id="tool-cost" type="number" min="0" step="0.01" placeholder="15" />
             </div>
             <div class="form-group">
               <label for="tool-category">Category</label>
@@ -892,12 +983,210 @@
             </div>
             <div class="form-group full">
               <label for="tool-purpose">Main purpose</label>
-              <input id="tool-purpose" type="text" placeholder="e.g. coding help, video editing, notes, courses..." autocomplete="off" />
+              <input id="tool-purpose" type="text" placeholder="e.g. shows, music, delivery, coding help, courses..." autocomplete="off" />
             </div>
           </div>
-          <button class="btn btn-primary" onclick="addTool()"><i class="ti ti-plus"></i> Add tool</button>
+          <button class="btn btn-primary" onclick="addTool()"><i class="ti ti-plus"></i> Add item</button>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px;margin-bottom:8px;">Bulk add list</h3>
+          <div class="section-sub">Paste one item per line. Format: <strong>Name, monthly cost, category, usage, pain, purpose</strong>. Only name is required — StackTrim will guess the rest.</div>
+          <textarea id="bulk-input" placeholder="Netflix, 15.49, streaming, weekly, medium, shows\nSpotify, 10.99, music, daily, high, music\nDoorDash DashPass, 9.99, food, monthly, low, delivery\nChatGPT Plus, 20, ai, daily, high, coding"></textarea>
+          <div class="bulk-help">
+            Categories: ${Object.keys(CATEGORY_META).join(', ')}<br>
+            Usage: daily, weekly, monthly, rarely · Pain: high, medium, low
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
+            <button class="btn btn-primary" onclick="addBulkTools()"><i class="ti ti-list-plus"></i> Add all</button>
+            <button class="btn btn-secondary" onclick="fillBulkExample()"><i class="ti ti-sparkles"></i> Fill example</button>
+          </div>
         </div>
       `;
+    }
+
+
+    function renderBulkImport() {
+      document.getElementById('tab-bulk').innerHTML = `
+        <div class="section-title">Bulk import subscriptions</div>
+        <div class="section-sub">This is the feature people would pay for: paste a messy bank statement, Apple subscriptions list, or notes list and StackTrim turns it into an audit in seconds.</div>
+
+        <div class="pro-panel">
+          <h3><i class="ti ti-crown"></i> Pro value: save time before saving money</h3>
+          <p>Free users can manually add a few subscriptions. A paid version can unlock unlimited bulk import, smarter detection, streaming rotation plans, food-delivery break-even checks, and exportable reports.</p>
+          <div class="pro-list">
+            <div><strong>Bulk paste import</strong><br>Turn messy charges into subscriptions automatically.</div>
+            <div><strong>Auto-categorization</strong><br>Detect streaming, food, AI, gaming, music, and media.</div>
+            <div><strong>Duplicate detection</strong><br>Warn when something already exists in the audit.</div>
+            <div><strong>Full plan export</strong><br>Generate a cancel/downgrade plan people can actually follow.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:15px;margin-bottom:8px;">Paste charges or subscription list</h3>
+          <div class="section-sub">Works with lines like <strong>NETFLIX.COM 22.99</strong>, <strong>Spotify, 11.99</strong>, or <strong>DoorDash DashPass - $9.99</strong>. You can also include usage/pain if you know it.</div>
+          <textarea id="bulk-input" style="min-height:190px;" placeholder="NETFLIX.COM 22.99\nSPOTIFY USA 11.99\nUBER ONE 9.99\nDOORDASH DASHPASS 9.99\nOPENAI CHATGPT 20.00\nANTHROPIC CLAUDE 20.00\nHULU 17.99\nDISNEY PLUS 13.99"></textarea>
+          <div class="bulk-help">
+            Optional format: name, price, category, usage, pain, purpose. Otherwise StackTrim will guess category and defaults.
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
+            <button class="btn btn-primary" onclick="previewBulkImport()"><i class="ti ti-eye"></i> Preview detected subscriptions</button>
+            <button class="btn btn-secondary" onclick="fillBulkExample()"><i class="ti ti-sparkles"></i> Fill example</button>
+            <button class="btn btn-secondary" onclick="fillBankExample()"><i class="ti ti-receipt"></i> Fill bank-style example</button>
+          </div>
+          <div id="bulk-preview"></div>
+        </div>
+      `;
+    }
+
+    function parsePriceFromLine(line) {
+      const matches = String(line).match(/\$?\s*(\d{1,4}(?:\.\d{2})?)(?!.*\d)/);
+      if (!matches) return 0;
+      const n = parseFloat(matches[1]);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function cleanupChargeName(raw) {
+      return String(raw || '')
+        .replace(/\$?\s*\d{1,4}(?:\.\d{2})?\s*$/g, '')
+        .replace(/\b(POS|DEBIT|CARD|PURCHASE|RECURRING|PAYMENT|ONLINE|WWW|COM|INC|LLC|USA|US|CA)\b/gi, '')
+        .replace(/[\*#_]+/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .replace(/[,-]\s*$/g, '')
+        .trim();
+    }
+
+    function titleCaseName(name) {
+      const known = {
+        'netflix': 'Netflix', 'spotify': 'Spotify', 'hulu': 'Hulu', 'disney plus': 'Disney+', 'disney': 'Disney+',
+        'max': 'Max', 'hbo max': 'Max', 'prime video': 'Prime Video', 'amazon prime': 'Amazon Prime',
+        'uber one': 'Uber One', 'uber eats': 'Uber Eats', 'doordash': 'DoorDash', 'dashpass': 'DoorDash DashPass',
+        'openai chatgpt': 'ChatGPT Plus', 'chatgpt': 'ChatGPT Plus', 'anthropic claude': 'Claude Pro', 'claude': 'Claude Pro',
+        'perplexity': 'Perplexity Pro', 'youtube premium': 'YouTube Premium', 'apple music': 'Apple Music',
+        'canva': 'Canva', 'adobe': 'Adobe', 'xbox': 'Xbox Game Pass', 'playstation': 'PlayStation Plus', 'nintendo': 'Nintendo Switch Online'
+      };
+      const lower = String(name || '').toLowerCase().trim();
+      for (const [needle, pretty] of Object.entries(known)) {
+        if (lower.includes(needle)) return pretty;
+      }
+      return String(name || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()).trim() || 'Unknown subscription';
+    }
+
+    function inferDefaults(category, cost, name) {
+      const lower = String(name || '').toLowerCase();
+      let usage = 'monthly';
+      let pain = 'medium';
+      let purpose = categoryLabel(category).toLowerCase();
+
+      if (category === 'music') { usage = 'daily'; pain = 'high'; purpose = 'music'; }
+      if (category === 'ai') { usage = /chatgpt|claude/.test(lower) ? 'weekly' : 'monthly'; pain = 'medium'; purpose = 'AI help'; }
+      if (category === 'streaming') { usage = cost >= 18 ? 'monthly' : 'weekly'; pain = 'medium'; purpose = 'shows and movies'; }
+      if (category === 'food') { usage = 'monthly'; pain = 'low'; purpose = 'delivery fees and perks'; }
+      if (category === 'gaming') { usage = 'monthly'; pain = 'medium'; purpose = 'games'; }
+      if (category === 'media') { usage = 'monthly'; pain = 'low'; purpose = 'news, books, or media'; }
+      if (cost >= 35 && category !== 'music') pain = 'low';
+      return { usage, pain, purpose };
+    }
+
+    function parseBulkLine(line) {
+      const original = String(line || '').trim();
+      if (!original) return null;
+      const parts = original.includes(',') ? original.split(',').map(p => p.trim()).filter(Boolean) : [];
+      let name, cost, category, usage, pain, purpose;
+
+      if (parts.length >= 2) {
+        name = parts[0];
+        cost = parseFloat((parts[1] || '').replace(/[^0-9.]/g, '')) || 0;
+        category = normalizeCategory(parts[2], name);
+        usage = normalizeUsage(parts[3]);
+        pain = normalizePain(parts[4]);
+        purpose = parts.slice(5).join(', ');
+      } else {
+        cost = parsePriceFromLine(original);
+        name = cleanupChargeName(original);
+        name = titleCaseName(name);
+        category = normalizeCategory('', name);
+        const defaults = inferDefaults(category, cost, name);
+        usage = defaults.usage;
+        pain = defaults.pain;
+        purpose = defaults.purpose;
+      }
+
+      if (!name) return null;
+      name = titleCaseName(name);
+      category = normalizeCategory(category, name);
+      const defaults = inferDefaults(category, cost, name);
+      usage = usage || defaults.usage;
+      pain = pain || defaults.pain;
+      purpose = purpose || defaults.purpose;
+
+      const duplicate = tools.some(t => String(t.name).toLowerCase().trim() === String(name).toLowerCase().trim());
+      return { id: nextId, name, cost, category, usage, pain, purpose, duplicate, original };
+    }
+
+    function getParsedBulkRows() {
+      const raw = document.getElementById('bulk-input')?.value || '';
+      return raw.split('\n').map(parseBulkLine).filter(Boolean);
+    }
+
+    function previewBulkImport() {
+      const rows = getParsedBulkRows();
+      const box = document.getElementById('bulk-preview');
+      if (!rows.length) {
+        box.innerHTML = `<div class="tip" style="margin-top:1rem;">Paste at least one valid line first.</div>`;
+        return;
+      }
+      const total = rows.reduce((sum, r) => sum + Number(r.cost || 0), 0);
+      const duplicateCount = rows.filter(r => r.duplicate).length;
+      box.innerHTML = `
+        <div class="tip" style="margin-top:1rem;">
+          Detected <strong>${rows.length}</strong> subscription${rows.length === 1 ? '' : 's'} worth <strong>${money(total)}/mo</strong>.
+          ${duplicateCount ? `<br><strong>${duplicateCount}</strong> possible duplicate${duplicateCount === 1 ? '' : 's'} will be skipped by default.` : ''}
+        </div>
+        <div class="preview-table-wrap">
+          <table class="preview-table">
+            <thead><tr><th>Add?</th><th>Name</th><th>Cost</th><th>Category</th><th>Usage</th><th>Reason</th></tr></thead>
+            <tbody>
+              ${rows.map((r, idx) => `
+                <tr>
+                  <td><input type="checkbox" id="bulk-check-${idx}" ${r.duplicate ? '' : 'checked'}></td>
+                  <td><strong>${escHtml(r.name)}</strong><div class="preview-muted">${r.duplicate ? 'Possible duplicate' : 'Detected from paste'}</div></td>
+                  <td>${money(r.cost)}/mo</td>
+                  <td>${escHtml(categoryLabel(r.category))}</td>
+                  <td>${escHtml(r.usage)}</td>
+                  <td>${escHtml(reasonFor(r))}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
+          <button class="btn btn-primary" onclick="confirmBulkImport()"><i class="ti ti-list-check"></i> Add selected</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('bulk-preview').innerHTML=''">Clear preview</button>
+        </div>
+      `;
+    }
+
+    function confirmBulkImport() {
+      const rows = getParsedBulkRows();
+      if (!rows.length) { showToast('Nothing to add.'); return; }
+      let added = 0;
+      rows.forEach((r, idx) => {
+        const check = document.getElementById(`bulk-check-${idx}`);
+        if (check && !check.checked) return;
+        tools.push({ id: nextId++, name: r.name, cost: r.cost, category: r.category, usage: r.usage, pain: r.pain, purpose: r.purpose });
+        added++;
+      });
+      if (!added) { showToast('No selected items added.'); return; }
+      saveTools();
+      showToast(`${added} subscription${added === 1 ? '' : 's'} imported.`);
+      showTab('audit');
+    }
+
+    function fillBankExample() {
+      const input = document.getElementById('bulk-input');
+      if (!input) return;
+      input.value = `NETFLIX.COM 22.99\nSPOTIFY USA 11.99\nUBER ONE 9.99\nDOORDASH DASHPASS 9.99\nOPENAI CHATGPT 20.00\nANTHROPIC CLAUDE 20.00\nHULU 17.99\nDISNEY PLUS 13.99\nAPPLE ICLOUD 2.99\nXBOX GAME PASS 16.99`;
+      previewBulkImport();
     }
 
     function addTool() {
@@ -917,6 +1206,67 @@
       saveTools();
       showToast(`${name} added.`);
       showTab('audit');
+    }
+
+
+    function normalizeCategory(raw, name = '') {
+      const value = String(raw || '').toLowerCase().trim();
+      const joined = `${value} ${String(name || '').toLowerCase()}`;
+      if (CATEGORY_META[value]) return value;
+      if (/netflix|hulu|disney|prime video|amazon prime|paramount|peacock|max|hbo|tv|stream|crunchyroll|apple tv/.test(joined)) return 'streaming';
+      if (/spotify|music|apple music|youtube music|youtube premium|tidal|pandora/.test(joined)) return 'music';
+      if (/doordash|dashpass|uber eats|uber one|grubhub|postmates|instacart|food|delivery/.test(joined)) return 'food';
+      if (/news|magazine|new york times|nyt|audible|kindle|book|libby|media/.test(joined)) return 'media';
+      if (/game|xbox|playstation|ps plus|nintendo|steam/.test(joined)) return 'gaming';
+      if (/chatgpt|claude|perplexity|ai|copilot|cursor/.test(joined)) return 'ai';
+      if (/canva|figma|photo|design|adobe/.test(joined)) return 'design';
+      if (/coursera|udemy|skillshare|course|learning/.test(joined)) return 'learning';
+      if (/drive|icloud|dropbox|storage|google one/.test(joined)) return 'storage';
+      if (/notion|notes|onenote|obsidian/.test(joined)) return 'notes';
+      if (/gym|fitness|run|workout/.test(joined)) return 'fitness';
+      if (/budget|finance|rocket money|monarch/.test(joined)) return 'finance';
+      return 'other';
+    }
+
+    function normalizeUsage(value) {
+      const v = String(value || '').toLowerCase().trim();
+      return ['daily', 'weekly', 'monthly', 'rarely'].includes(v) ? v : 'monthly';
+    }
+
+    function normalizePain(value) {
+      const v = String(value || '').toLowerCase().trim();
+      return ['high', 'medium', 'low'].includes(v) ? v : 'medium';
+    }
+
+    function addBulkTools() {
+      const raw = document.getElementById('bulk-input').value.trim();
+      if (!raw) { showToast('Paste at least one line first.'); return; }
+
+      const rows = raw.split('\n').map(line => line.trim()).filter(Boolean);
+      let added = 0;
+
+      rows.forEach(line => {
+        const parts = line.split(',').map(p => p.trim());
+        const name = parts[0];
+        if (!name) return;
+        const parsedCost = parseFloat((parts[1] || '').replace(/[^0-9.]/g, ''));
+        const cost = Number.isFinite(parsedCost) ? parsedCost : 0;
+        const category = normalizeCategory(parts[2], name);
+        const usage = normalizeUsage(parts[3]);
+        const pain = normalizePain(parts[4]);
+        const purpose = parts.slice(5).join(', ') || categoryLabel(category).toLowerCase();
+        tools.push({ id: nextId++, name, cost, category, usage, pain, purpose });
+        added++;
+      });
+
+      if (!added) { showToast('No valid lines found.'); return; }
+      saveTools();
+      showToast(`${added} item${added === 1 ? '' : 's'} added.`);
+      showTab('audit');
+    }
+
+    function fillBulkExample() {
+      document.getElementById('bulk-input').value = `Netflix, 15.49, streaming, weekly, medium, shows\nHulu, 17.99, streaming, monthly, low, one show\nSpotify Premium, 10.99, music, daily, high, music\nDoorDash DashPass, 9.99, food, rarely, low, delivery\nUber One, 9.99, food, monthly, low, rides and food\nChatGPT Plus, 20, ai, daily, high, coding`;
     }
 
     function renderAudit() {
@@ -1031,16 +1381,54 @@
       showToast('Demo data loaded.');
     }
 
+
+    function renderSmartSavingsPlans() {
+      if (!tools.length) return '';
+      const total = tools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+      const foodTools = tools.filter(t => t.category === 'food');
+      const streamingTools = tools.filter(t => t.category === 'streaming');
+      const aiTools = tools.filter(t => t.category === 'ai');
+      const musicTools = tools.filter(t => t.category === 'music');
+      const plans = [];
+
+      if (streamingTools.length >= 2) {
+        const streamingTotal = streamingTools.reduce((s,t)=>s+Number(t.cost||0),0);
+        const keepOne = [...streamingTools].sort((a,b)=>Number(b.cost||0)-Number(a.cost||0))[0];
+        plans.push({ icon:'ti-device-tv', title:'Streaming rotation plan', text:`You have ${streamingTools.length} streaming subscriptions at ${money(streamingTotal)}/mo. Keep ${keepOne.name} this month, pause the rest, and rotate one service each month instead of paying for all at once.`, script:`Cancel script: “I’m rotating streaming services to reduce monthly bills. I’d like to cancel or pause this plan effective at the end of the billing period.”` });
+      }
+      if (foodTools.length) {
+        const foodTotal = foodTools.reduce((s,t)=>s+Number(t.cost||0),0);
+        plans.push({ icon:'ti-tools-kitchen-2', title:'Food delivery break-even check', text:`Food memberships cost ${money(foodTotal)}/mo before delivery fees, tips, and markups. Keep only one membership if it saves more than it costs; otherwise switch 2 orders to pickup and you may save more than canceling a small app.`, script:`Rule: if you order delivery less than 2 times per month from that service, cancel the membership and use pickup.` });
+      }
+      if (aiTools.length >= 2) {
+        const aiTotal = aiTools.reduce((s,t)=>s+Number(t.cost||0),0);
+        plans.push({ icon:'ti-robot', title:'AI overlap cleanup', text:`You have ${aiTools.length} AI tools at ${money(aiTotal)}/mo. Pick one paid primary AI tool and use free tiers/local tools for the rest unless they solve a very specific workflow.`, script:`Rule: keep the AI tool you use daily for school/coding/work. Downgrade the ones you only open weekly or rarely.` });
+      }
+      if (musicTools.length) {
+        plans.push({ icon:'ti-music', title:'Music plan check', text:`Music is different: if used daily, downgrade/student/family pricing is usually better than canceling. If not daily, try a free tier for one month.`, script:`Rule: daily/high-pain music gets “downgrade” first, not “cancel.”` });
+      }
+      if (!plans.length) {
+        plans.push({ icon:'ti-receipt-dollar', title:'Simple cut plan', text:`Your tracked spend is ${money(total)}/mo. Review the lowest-usage, highest-cost item first, then remove overlapping subscriptions in the same category.`, script:`Rule: cancel one low-usage item today, then re-audit next month.` });
+      }
+
+      return `<div class="section-title" style="margin-top:1rem;">Smart saving plans</div>
+        <div class="plan-grid">
+          ${plans.map(p => `<div class="plan-card"><h3><i class="ti ${p.icon}"></i> ${escHtml(p.title)}</h3><p>${escHtml(p.text)}</p><div class="script-box">${escHtml(p.script)}</div></div>`).join('')}
+        </div>`;
+    }
+
     function renderAlternatives() {
       const categories = [...new Set(tools.map(t => t.category))];
-      const list = categories.length ? categories : ['ai', 'coding', 'notes', 'design'];
+      const defaultList = ['food', 'streaming', 'music', 'ai', 'media', 'gaming'];
+      const list = categories.length ? categories : defaultList;
 
       let html = `
         <div class="section-title">Cheaper alternatives</div>
         <div class="section-sub">
-          This MVP uses a curated replacement database instead of unsafe browser API keys.
-          Later, add a backend for AI-generated alternatives and payments.
+          StackTrim now focuses on normal everyday subscriptions too: food delivery, streaming, music, media, gaming, AI, and software. Suggestions change based on the category and how much that category costs you.
         </div>
+        ${renderPayValueSection()}
+        ${renderSmartSavingsPlans()}
         <div class="alt-grid">
       `;
 
@@ -1049,6 +1437,13 @@
         const alts = ALTERNATIVES[category] || ALTERNATIVES.other;
         const categoryTools = tools.filter(t => t.category === category);
         const paidTotal = categoryTools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+        const categorySavings = categoryTools.reduce((sum, t) => {
+          const v = verdictFromScore(scoreTool(t));
+          const cost = Number(t.cost || 0);
+          if (v === 'cancel' || v === 'review') return sum + cost;
+          if (v === 'downgrade') return sum + Math.round(cost * 0.5);
+          return sum;
+        }, 0);
 
         html += `
           <div class="alt-card">
@@ -1056,7 +1451,8 @@
               <span><i class="ti ${meta.icon}"></i> ${escHtml(meta.label)}</span>
               ${categoryTools.length ? `<span class="badge badge-muted">${money(paidTotal)}/mo</span>` : ''}
             </h3>
-            <p>${categoryTools.length ? `You track ${categoryTools.length} tool(s) in this category.` : 'Popular replacement ideas for this category.'}</p>
+            <p>${categoryTools.length ? `You track ${categoryTools.length} item(s). Possible category savings: ${money(categorySavings)}/mo.` : 'Popular savings ideas for this category.'}</p>
+            ${categoryInsight(category, paidTotal, categoryTools.length)}
             <ul class="alt-list">
               ${alts.map(alt => `
                 <li>
@@ -1064,6 +1460,7 @@
                   <span>
                     <strong>${escHtml(alt.name)}</strong> — ${escHtml(alt.price)}<br>
                     ${escHtml(alt.desc)}
+                    <div class="mini-pill-row">${(alt.pros || []).map(p => `<span class="mini-pill">${escHtml(p)}</span>`).join('')}</div>
                     <br><a href="${escHtml(alt.url)}" target="_blank" rel="noopener noreferrer" style="color:var(--blue-text);">Open</a>
                   </span>
                 </li>
@@ -1074,8 +1471,58 @@
       });
 
       html += `</div>`;
-
       document.getElementById('tab-alternatives').innerHTML = html;
+    }
+
+    function categoryInsight(category, paidTotal, count) {
+      if (!count) return '';
+      const monthly = Number(paidTotal || 0);
+      const yearly = monthly * 12;
+      const map = {
+        food: `Food delivery is usually about habits, not just subscriptions. If this category is ${money(monthly)}/mo, even reducing 2 delivery orders can save more than canceling a small app.`,
+        streaming: `Streaming stacks quietly. ${money(monthly)}/mo is ${money(yearly)}/yr — rotation is usually the best strategy.`,
+        music: `Music is worth keeping if used daily. If not daily, downgrade first before canceling.`,
+        media: `Media/news/audiobook spend often has free library replacements. Check usage before renewing.`,
+        ai: `AI tools overlap heavily. Pick one paid primary tool and downgrade the rest first.`,
+        gaming: `Gaming subscriptions are good only during active play months. Pause during backlog or busy months.`
+      };
+      return `<div class="category-insight"><strong>Insight:</strong> ${escHtml(map[category] || `This category costs ${money(monthly)}/mo. Review low-usage items first.`)}</div>`;
+    }
+
+    function renderPayValueSection() {
+      const total = tools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+      const savings = calcSavings();
+      return `
+        <div class="value-grid">
+          <div class="value-card"><i class="ti ti-list-check"></i><strong>Bulk audit</strong><span>People pay because they do not want to manually enter 20–40 charges. Paste once, preview, add all.</span></div>
+          <div class="value-card"><i class="ti ti-calendar-dollar"></i><strong>Saving plans</strong><span>Streaming rotation, food delivery break-even checks, AI overlap cleanup, and downgrade-first rules.</span></div>
+          <div class="value-card"><i class="ti ti-lock-dollar"></i><strong>Paid upgrade idea</strong><span>Free: 5 manual items. Pro one-time $9: unlimited bulk import, duplicate detection, full report, reminders, and exports. Current spend: ${money(total)}/mo, possible cuts: ${money(savings)}/mo.</span></div>
+        </div>`;
+    }
+
+
+    function smartPlanTextForReport() {
+      if (!tools.length) return '  Add subscriptions first.';
+      const foodTotal = tools.filter(t=>t.category==='food').reduce((s,t)=>s+Number(t.cost||0),0);
+      const streaming = tools.filter(t=>t.category==='streaming');
+      const ai = tools.filter(t=>t.category==='ai');
+      const lines = [];
+      if (streaming.length >= 2) lines.push(`  • Streaming rotation: keep one streaming service active per month instead of paying for all ${streaming.length}.`);
+      if (foodTotal > 0) lines.push(`  • Food delivery: memberships cost ${money(foodTotal)}/mo before fees/tips. Keep only if usage beats the monthly fee.`);
+      if (ai.length >= 2) lines.push(`  • AI cleanup: keep one paid primary AI tool and downgrade overlapping tools.`);
+      lines.push('  • Cancel script: “I am reducing recurring bills. Please cancel/pause this subscription at the end of the current billing period.”');
+      return lines.join('\n');
+    }
+
+    function categoryTipsForReport() {
+      const categories = [...new Set(tools.map(t => t.category))];
+      if (!categories.length) return '  Add subscriptions first to generate category tips.';
+      return categories.map(category => {
+        const categoryTools = tools.filter(t => t.category === category);
+        const monthly = categoryTools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
+        const firstAlt = (ALTERNATIVES[category] || ALTERNATIVES.other)[0];
+        return `  • ${categoryLabel(category)} — ${money(monthly)}/mo. Try: ${firstAlt.name} (${firstAlt.price}).`;
+      }).join('\n');
     }
 
     function buildReport() {
@@ -1114,6 +1561,12 @@ ${linesFor(groups.review)}
 
 CANCEL / REPLACE
 ${linesFor(groups.cancel)}
+
+TOP CATEGORY TIPS
+${categoryTipsForReport()}
+
+SMART SAVING PLAN
+${smartPlanTextForReport()}
 
 NOTES
 This audit is an estimate based on usage, cost, removal pain, and category overlap.
