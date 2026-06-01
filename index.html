@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="StackTrim helps you audit subscriptions, find wasted tools, and estimate monthly savings." />
-  <title>StackTrim — Subscription Audit</title>
+  <meta name="description" content="Paste your subscriptions in seconds. StackTrim finds cheaper alternatives, overlap, and a cancel plan — free in your browser." />
+  <meta property="og:title" content="StackTrim — Find cheaper subscription alternatives" />
+  <meta property="og:description" content="Link your subs in one paste. Get swaps for streaming, food, AI, music, and more." />
+  <meta name="theme-color" content="#534ab7" />
+  <title>StackTrim — Cheaper alternatives for your subscriptions</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -507,7 +510,149 @@
       line-height: 1.5;
     }
 
+    .upgrade-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: linear-gradient(135deg, var(--purple-bg), var(--amber-bg));
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      margin-bottom: 1rem;
+      font-size: 13px;
+    }
+    .upgrade-banner strong { font-size: 13px; }
+    .upgrade-banner span { color: var(--text2); font-size: 12px; line-height: 1.45; }
+
+    .link-hero {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .link-hero h3 { font-size: 17px; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .link-hero p { color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+    .chip {
+      border: 0.5px solid var(--border2);
+      background: var(--bg2);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .chip:hover { background: var(--bg); border-color: var(--purple-text); }
+    .chip i { font-size: 14px; vertical-align: -2px; margin-right: 4px; }
+
+    .paste-box {
+      width: 100%;
+      min-height: 140px;
+      background: var(--bg2);
+      border: 1px dashed var(--border2);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 14px;
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+      line-height: 1.5;
+    }
+    .paste-box:focus {
+      border-color: var(--purple-text);
+      border-style: solid;
+      box-shadow: 0 0 0 3px rgba(83,74,183,0.12);
+    }
+
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .step-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.45;
+    }
+    .step-card strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .swap-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      margin-bottom: 10px;
+    }
+    .swap-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .swap-from { font-size: 15px; font-weight: 650; }
+    .swap-alts { display: grid; gap: 8px; }
+    .swap-alt-item {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .swap-alt-item strong { color: var(--green-text); font-size: 12px; display: block; margin-bottom: 2px; }
+
+    .pro-badge-top {
+      background: linear-gradient(135deg, var(--purple-bg), var(--amber-bg));
+      color: var(--purple-text);
+      border: 0.5px solid var(--border);
+      cursor: pointer;
+    }
+
+    .limit-note {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 8px;
+    }
+
     @media (max-width: 760px) {
+      .steps-row { grid-template-columns: 1fr; }
       .hero-grid { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .alt-grid { grid-template-columns: 1fr; }
@@ -537,84 +682,165 @@
         <div class="logo">S</div>
         <div>
           <h1>StackTrim</h1>
-          <p>Subscription auditor for messy software stacks.</p>
+          <p>Paste subs → get cheaper alternatives.</p>
         </div>
       </div>
       <div class="top-actions">
-        <span class="badge badge-beta">MVP</span>
+        <span id="pro-status-badge" class="badge badge-muted" onclick="openProModal()" role="button" tabindex="0" title="Free or Pro plan">Free</span>
         <button class="btn btn-secondary btn-small" onclick="openPrivacyModal()">
           <i class="ti ti-shield-lock"></i> Privacy
         </button>
       </div>
     </header>
 
+    <div id="upgrade-banner-slot"></div>
+
     <section class="hero">
       <div class="hero-grid">
         <div>
-          <h2>Stop paying for tools you barely use.</h2>
+          <h2>Link your subscriptions. Find what to swap.</h2>
           <p>
-            Paste your subscriptions all at once or add them manually: food delivery, streaming, music, AI, apps, and software.
-            StackTrim detects categories, finds overlap, estimates savings, and turns messy charges into a simple cancel/downgrade plan.
+            Paste from Apple Subscriptions, your bank, or a notes list — Netflix, DoorDash, ChatGPT, Spotify, and more.
+            StackTrim sorts categories, flags overlap, and shows cheaper alternatives plus a cancel plan.
           </p>
           <div class="hero-actions">
-            <button class="btn btn-primary" onclick="showTab('add')">
-              <i class="ti ti-plus"></i> Start audit
+            <button class="btn btn-primary" onclick="showTab('link')">
+              <i class="ti ti-link"></i> Link subscriptions
+            </button>
+            <button class="btn btn-secondary" onclick="showTab('alternatives')">
+              <i class="ti ti-switch-horizontal"></i> See alternatives
             </button>
             <button class="btn btn-secondary" onclick="loadDemoData()">
-              <i class="ti ti-sparkles"></i> Try demo data
+              <i class="ti ti-sparkles"></i> Demo
             </button>
           </div>
         </div>
         <div class="hero-stat">
-          <small>Potential yearly savings</small>
+          <small>Up to yearly savings</small>
           <strong id="hero-savings">$0</strong>
-          <span>Based on your current audit.</span>
+          <span id="hero-savings-note">Paste subs to see your number.</span>
         </div>
       </div>
     </section>
 
-    <nav aria-label="Main navigation">
-      <button class="active" onclick="showTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
-      <button onclick="showTab('add')"><i class="ti ti-plus"></i> Add tool</button>
-      <button onclick="showTab('bulk')"><i class="ti ti-list-plus"></i> Bulk import</button>
-      <button onclick="showTab('audit')"><i class="ti ti-report-analytics"></i> Audit</button>
-      <button onclick="showTab('alternatives')"><i class="ti ti-switch-horizontal"></i> Alternatives</button>
-      <button onclick="showTab('report')"><i class="ti ti-file-text"></i> Report</button>
+    <nav aria-label="Main navigation" id="main-nav">
+      <button data-tab="link" onclick="showTab('link')"><i class="ti ti-link"></i> Link</button>
+      <button data-tab="alternatives" onclick="showTab('alternatives')"><i class="ti ti-switch-horizontal"></i> Alternatives</button>
+      <button data-tab="dashboard" class="active" onclick="showTab('dashboard')"><i class="ti ti-layout-dashboard"></i> Overview</button>
+      <button data-tab="audit" onclick="showTab('audit')"><i class="ti ti-report-analytics"></i> Audit</button>
+      <button data-tab="report" onclick="showTab('report')"><i class="ti ti-file-text"></i> Report</button>
     </nav>
 
     <main>
-      <div id="tab-dashboard" class="tab active"></div>
-      <div id="tab-add" class="tab"></div>
-      <div id="tab-bulk" class="tab"></div>
-      <div id="tab-audit" class="tab"></div>
+      <div id="tab-link" class="tab"></div>
       <div id="tab-alternatives" class="tab"></div>
+      <div id="tab-dashboard" class="tab active"></div>
+      <div id="tab-audit" class="tab"></div>
       <div id="tab-report" class="tab"></div>
     </main>
 
     <footer class="footer">
-      StackTrim MVP saves data only in your browser using localStorage. This version has no accounts, no bank connection yet, no external AI calls, and no real payment processing yet — paid features are presented as product positioning only.
+      StackTrim runs in your browser — subscriptions stay on your device (localStorage). No account required. Pro unlocks unlimited imports and exports; connect a payment link when you are ready to charge.
     </footer>
   </div>
 
-  <div class="modal-backdrop" id="privacy-modal" onclick="closePrivacyModal(event)">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title">
-      <h3 id="privacy-title">Privacy-first MVP</h3>
+  <div class="modal-backdrop" id="privacy-modal" onclick="closeModalBackdrop(event, 'privacy-modal')">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="privacy-title" onclick="event.stopPropagation()">
+      <h3 id="privacy-title">Privacy-first</h3>
       <p>
-        This version runs completely in your browser. Your tool list is stored locally on your device.
-        There is no backend, no tracking script, no API key input, and no external AI call.
+        StackTrim runs in your browser. Your subscription list is stored locally on this device only.
+        No backend, no tracking pixels, no AI API calls.
       </p>
       <p>
-        Because there is no account system yet, data will not sync across devices or browsers.
-        Export your report if you want a copy.
+        Export a report or JSON backup from the Report tab. Data does not sync across devices until you add accounts later.
       </p>
-      <button class="btn btn-primary" onclick="document.getElementById('privacy-modal').classList.remove('show')">Got it</button>
+      <button class="btn btn-primary" onclick="closeModal('privacy-modal')">Got it</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="pro-modal" onclick="closeModalBackdrop(event, 'pro-modal')">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pro-title" onclick="event.stopPropagation()">
+      <h3 id="pro-title"><i class="ti ti-crown"></i> StackTrim Pro</h3>
+      <p>People pay to save time — paste 30 charges once instead of typing them one by one — and to save money with a clear swap plan.</p>
+      <div class="pro-list" style="margin:12px 0;">
+        <div><strong>Free</strong><br>Up to 8 subscriptions · quick-add chips · core alternatives</div>
+        <div><strong>Pro — $9 one-time</strong><br>Unlimited paste/CSV import · full report export · backup/restore · smart plans</div>
+      </div>
+      <p style="font-size:12px;color:var(--text3);">Replace <code>PRO_CHECKOUT_URL</code> in the app with your Stripe/Gumroad link when ready.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
+        <a id="pro-checkout-link" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer" style="display:none;"><i class="ti ti-credit-card"></i> Get Pro</a>
+        <button class="btn btn-primary" onclick="unlockProDemo()"><i class="ti ti-key"></i> I already paid / unlock</button>
+        <button class="btn btn-secondary" onclick="closeModal('pro-modal')">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="edit-modal" onclick="closeModalBackdrop(event, 'edit-modal')">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-title" onclick="event.stopPropagation()">
+      <h3 id="edit-title">Edit subscription</h3>
+      <input type="hidden" id="edit-id" />
+      <div class="form-grid" style="margin-top:12px;">
+        <div class="form-group full">
+          <label for="edit-name">Name</label>
+          <input id="edit-name" type="text" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label for="edit-cost">Monthly cost ($)</label>
+          <input id="edit-cost" type="number" min="0" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label for="edit-category">Category</label>
+          <select id="edit-category"></select>
+        </div>
+        <div class="form-group">
+          <label for="edit-usage">Usage</label>
+          <select id="edit-usage">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="rarely">Rarely</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-pain">Pain if removed</label>
+          <select id="edit-pain">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:1rem;">
+        <button class="btn btn-primary" onclick="saveEditTool()">Save</button>
+        <button class="btn btn-secondary" onclick="closeModal('edit-modal')">Cancel</button>
+      </div>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script>
-    const STORAGE_KEY = 'stacktrim_v2_tools';
+    const STORAGE_KEY = 'stacktrim_v3_tools';
+    const PRO_STORAGE_KEY = 'stacktrim_pro';
+    const FREE_SUB_LIMIT = 8;
+    const FREE_BULK_LINES = 6;
+    /** Set your Stripe / Gumroad / Lemon Squeezy checkout URL to show a real pay button */
+    const PRO_CHECKOUT_URL = '';
+
+    const QUICK_ADD = [
+      { name: 'Netflix', cost: 15.49, category: 'streaming' },
+      { name: 'Spotify Premium', cost: 10.99, category: 'music' },
+      { name: 'YouTube Premium', cost: 13.99, category: 'music' },
+      { name: 'ChatGPT Plus', cost: 20, category: 'ai' },
+      { name: 'DoorDash DashPass', cost: 9.99, category: 'food' },
+      { name: 'Uber One', cost: 9.99, category: 'food' },
+      { name: 'Disney+', cost: 13.99, category: 'streaming' },
+      { name: 'Hulu', cost: 17.99, category: 'streaming' },
+      { name: 'Claude Pro', cost: 20, category: 'ai' },
+      { name: 'iCloud+', cost: 2.99, category: 'storage' },
+      { name: 'Xbox Game Pass', cost: 16.99, category: 'gaming' },
+      { name: 'Canva Pro', cost: 15, category: 'design' }
+    ];
 
     const CATEGORY_META = {
       ai: { label: 'AI', icon: 'ti-robot', style: 'background:#EEEDFE;color:#534AB7' },
@@ -738,9 +964,103 @@
     let tools = loadTools();
     let nextId = getNextId();
 
+    function isPro() {
+      try { return localStorage.getItem(PRO_STORAGE_KEY) === '1'; } catch { return false; }
+    }
+
+    function setPro(value) {
+      try {
+        if (value) localStorage.setItem(PRO_STORAGE_KEY, '1');
+        else localStorage.removeItem(PRO_STORAGE_KEY);
+      } catch { /* ignore */ }
+      updateProUI();
+    }
+
+    function subsRemaining() {
+      return Math.max(0, (isPro() ? 9999 : FREE_SUB_LIMIT) - tools.length);
+    }
+
+    function canAddCount(n) {
+      if (isPro()) return true;
+      return tools.length + n <= FREE_SUB_LIMIT;
+    }
+
+    function requireProOrLimit(adding, featureLabel) {
+      if (canAddCount(adding)) return true;
+      showToast(`Free plan: ${FREE_SUB_LIMIT} subscriptions max. Upgrade for unlimited.`);
+      openProModal();
+      return false;
+    }
+
+    function updateProUI() {
+      const badge = document.getElementById('pro-status-badge');
+      if (badge) {
+        badge.textContent = isPro() ? 'Pro' : `Free · ${subsRemaining()} left`;
+        badge.className = isPro() ? 'badge pro-badge-top' : 'badge badge-muted';
+      }
+      const checkout = document.getElementById('pro-checkout-link');
+      if (checkout && PRO_CHECKOUT_URL) {
+        checkout.href = PRO_CHECKOUT_URL;
+        checkout.style.display = 'inline-flex';
+      }
+      renderUpgradeBanner();
+    }
+
+    function renderUpgradeBanner() {
+      const slot = document.getElementById('upgrade-banner-slot');
+      if (!slot) return;
+      if (isPro() || !tools.length) {
+        slot.innerHTML = '';
+        return;
+      }
+      const atLimit = tools.length >= FREE_SUB_LIMIT;
+      const near = tools.length >= FREE_SUB_LIMIT - 2;
+      if (!atLimit && !near) {
+        slot.innerHTML = '';
+        return;
+      }
+      slot.innerHTML = `
+        <div class="upgrade-banner">
+          <div>
+            <strong>${atLimit ? 'Free limit reached' : 'Almost at the free limit'}</strong>
+            <span>${atLimit ? 'Upgrade to Pro to add more subs and unlock CSV + full export.' : `${subsRemaining()} free slot(s) left — Pro removes the cap.`}</span>
+          </div>
+          <button class="btn btn-primary btn-small" onclick="openProModal()"><i class="ti ti-crown"></i> Go Pro — $9</button>
+        </div>`;
+    }
+
+    function openProModal() {
+      document.getElementById('pro-modal').classList.add('show');
+    }
+
+    function unlockProDemo() {
+      const code = prompt('Enter your Pro unlock code (from receipt), or leave blank to cancel:');
+      if (code === null) return;
+      const ok = /^STACKTRIM-?PRO$/i.test(code.trim()) || code.trim() === 'demo';
+      if (!ok) {
+        showToast('Invalid code. Use STACKTRIM-PRO after purchase.');
+        return;
+      }
+      setPro(true);
+      closeModal('pro-modal');
+      showToast('Pro unlocked on this device.');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id)?.classList.remove('show');
+    }
+
+    function closeModalBackdrop(event, id) {
+      if (event.target.id === id) closeModal(id);
+    }
+
     function loadTools() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        let raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          raw = localStorage.getItem('stacktrim_v2_tools');
+          if (raw) localStorage.setItem(STORAGE_KEY, raw);
+        }
         return raw ? JSON.parse(raw) : [];
       } catch {
         return [];
@@ -750,6 +1070,7 @@
     function saveTools() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
       updateHeroSavings();
+      updateProUI();
     }
 
     function getNextId() {
@@ -818,11 +1139,12 @@
       cancel: 'badge-cancel'
     };
 
-    function calcSavings() {
+    function calcSavings(conservative = false) {
       return tools.reduce((sum, tool) => {
         const verdict = verdictFromScore(scoreTool(tool));
         const cost = Number(tool.cost) || 0;
-        if (verdict === 'cancel' || verdict === 'review') return sum + cost;
+        if (verdict === 'cancel') return sum + cost;
+        if (verdict === 'review') return sum + (conservative ? Math.round(cost * 0.5) : cost);
         if (verdict === 'downgrade') return sum + Math.round(cost * 0.5);
         return sum;
       }, 0);
@@ -861,27 +1183,32 @@
     }
 
     function updateHeroSavings() {
-      const yearly = calcSavings() * 12;
       const el = document.getElementById('hero-savings');
-      if (el) el.textContent = money(yearly);
+      const note = document.getElementById('hero-savings-note');
+      const yearly = calcSavings(false) * 12;
+      if (el) el.textContent = tools.length ? (yearly > 0 ? `Up to ${money(yearly)}` : '$0') : '$0';
+      if (note) {
+        note.textContent = tools.length
+          ? `${tools.length} sub${tools.length === 1 ? '' : 's'} · Alternatives tab has your swaps`
+          : 'Paste subs to see your number.';
+      }
     }
 
     function showTab(tab) {
       document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-      document.getElementById(`tab-${tab}`).classList.add('active');
-
-      const tabs = ['dashboard', 'add', 'bulk', 'audit', 'alternatives', 'report'];
-      document.querySelectorAll('nav button').forEach((button, index) => {
-        button.classList.toggle('active', tabs[index] === tab);
+      document.getElementById(`tab-${tab}`)?.classList.add('active');
+      document.querySelectorAll('#main-nav button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
       });
 
-      if (tab === 'dashboard') renderDashboard();
-      if (tab === 'add') renderAdd();
-      if (tab === 'bulk') renderBulkImport();
-      if (tab === 'audit') renderAudit();
-      if (tab === 'alternatives') renderAlternatives();
-      if (tab === 'report') renderReport();
-
+      const renderers = {
+        link: renderLink,
+        alternatives: renderAlternatives,
+        dashboard: renderDashboard,
+        audit: renderAudit,
+        report: renderReport
+      };
+      renderers[tab]?.();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -897,8 +1224,8 @@
         <div class="metric-grid">
           <div class="metric"><div class="metric-label">Monthly spend</div><div class="metric-value spend">${money(total)}</div></div>
           <div class="metric"><div class="metric-label">Yearly spend</div><div class="metric-value spend">${money(total * 12)}</div></div>
-          <div class="metric"><div class="metric-label">Possible savings / mo</div><div class="metric-value savings">${money(savings)}</div></div>
-          <div class="metric"><div class="metric-label">Possible savings / yr</div><div class="metric-value savings">${money(savings * 12)}</div></div>
+          <div class="metric"><div class="metric-label">Up to savings / mo</div><div class="metric-value savings">${money(savings)}</div></div>
+          <div class="metric"><div class="metric-label">Up to savings / yr</div><div class="metric-value savings">${money(savings * 12)}</div></div>
         </div>
       `;
 
@@ -908,7 +1235,7 @@
             <i class="ti ti-receipt"></i>
             <strong>No subscriptions added yet.</strong><br>
             Add your first tool or load demo data to see how StackTrim works.<br><br>
-            <button class="btn btn-primary" onclick="showTab('add')"><i class="ti ti-plus"></i> Add a tool</button>
+            <button class="btn btn-primary" onclick="showTab('link')"><i class="ti ti-link"></i> Link subscriptions</button>
             <button class="btn btn-secondary" onclick="loadDemoData()"><i class="ti ti-sparkles"></i> Load demo</button>
           </div>
         `;
@@ -932,8 +1259,8 @@
         html += `
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
-            <button class="btn btn-primary" onclick="showTab('audit')">See full audit <i class="ti ti-arrow-right"></i></button>
-            <button class="btn btn-secondary" onclick="showTab('alternatives')"><i class="ti ti-switch-horizontal"></i> View alternatives</button>
+            <button class="btn btn-primary" onclick="showTab('alternatives')"><i class="ti ti-switch-horizontal"></i> See alternatives</button>
+            <button class="btn btn-secondary" onclick="showTab('audit')">Full audit <i class="ti ti-arrow-right"></i></button>
           </div>
         `;
       }
@@ -942,122 +1269,103 @@
       updateHeroSavings();
     }
 
-    function renderAdd() {
-      document.getElementById('tab-add').innerHTML = `
-        <div class="section-title">Add subscriptions</div>
-        <div class="section-sub">Add one subscription manually or paste a whole list at once. StackTrim works best when users add everything: food delivery, streaming, music, AI, apps, and software.</div>
+    function renderLink() {
+      const chips = QUICK_ADD.map((q, i) => {
+        const meta = CATEGORY_META[q.category] || CATEGORY_META.other;
+        return `<button type="button" class="chip" onclick="quickAddChip(${i})"><i class="ti ${meta.icon}"></i>${escHtml(q.name)}</button>`;
+      }).join('');
 
-        <div class="card">
-          <h3 style="font-size:15px;margin-bottom:10px;">Add one item</h3>
-          <div class="form-grid">
-            <div class="form-group full">
-              <label for="tool-name">Subscription / app name</label>
-              <input id="tool-name" type="text" placeholder="e.g. Netflix, Spotify, DoorDash, ChatGPT..." autocomplete="off" />
-            </div>
-            <div class="form-group">
-              <label for="tool-cost">Monthly cost ($)</label>
-              <input id="tool-cost" type="number" min="0" step="0.01" placeholder="15" />
-            </div>
-            <div class="form-group">
-              <label for="tool-category">Category</label>
-              <select id="tool-category">
-                ${Object.entries(CATEGORY_META).map(([key, meta]) => `<option value="${key}">${meta.label}</option>`).join('')}
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="tool-usage">Usage</label>
-              <select id="tool-usage">
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="rarely">Rarely / forgot I had it</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="tool-pain">Pain if removed</label>
-              <select id="tool-pain">
-                <option value="high">High — I rely on it</option>
-                <option value="medium">Medium — I would miss it</option>
-                <option value="low">Low — I could live without it</option>
-              </select>
-            </div>
-            <div class="form-group full">
-              <label for="tool-purpose">Main purpose</label>
-              <input id="tool-purpose" type="text" placeholder="e.g. shows, music, delivery, coding help, courses..." autocomplete="off" />
-            </div>
-          </div>
-          <button class="btn btn-primary" onclick="addTool()"><i class="ti ti-plus"></i> Add item</button>
+      document.getElementById('tab-link').innerHTML = `
+        <div class="steps-row">
+          <div class="step-card"><span class="step-num">1</span><strong>Paste or tap</strong>Add subs from Apple, bank text, or quick chips.</div>
+          <div class="step-card"><span class="step-num">2</span><strong>Preview</strong>We detect names, prices, and categories.</div>
+          <div class="step-card"><span class="step-num">3</span><strong>Alternatives</strong>See swaps and your cancel plan.</div>
         </div>
 
-        <div class="card">
-          <h3 style="font-size:15px;margin-bottom:8px;">Bulk add list</h3>
-          <div class="section-sub">Paste one item per line. Format: <strong>Name, monthly cost, category, usage, pain, purpose</strong>. Only name is required — StackTrim will guess the rest.</div>
-          <textarea id="bulk-input" placeholder="Netflix, 15.49, streaming, weekly, medium, shows\nSpotify, 10.99, music, daily, high, music\nDoorDash DashPass, 9.99, food, monthly, low, delivery\nChatGPT Plus, 20, ai, daily, high, coding"></textarea>
-          <div class="bulk-help">
-            Categories: ${Object.keys(CATEGORY_META).join(', ')}<br>
-            Usage: daily, weekly, monthly, rarely · Pain: high, medium, low
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
-            <button class="btn btn-primary" onclick="addBulkTools()"><i class="ti ti-list-plus"></i> Add all</button>
-            <button class="btn btn-secondary" onclick="fillBulkExample()"><i class="ti ti-sparkles"></i> Fill example</button>
-          </div>
-        </div>
-      `;
-    }
-
-
-    function renderBulkImport() {
-      document.getElementById('tab-bulk').innerHTML = `
-        <div class="section-title">Bulk import subscriptions</div>
-        <div class="section-sub">This is the feature people would pay for: paste a messy bank statement, Apple subscriptions list, or notes list and StackTrim turns it into an audit in seconds.</div>
-
-        <div class="pro-panel">
-          <h3><i class="ti ti-crown"></i> Pro value: save time before saving money</h3>
-          <p>Free users can manually add a few subscriptions. A paid version can unlock unlimited bulk import, smarter detection, streaming rotation plans, food-delivery break-even checks, and exportable reports.</p>
-          <div class="pro-list">
-            <div><strong>Bulk paste import</strong><br>Turn messy charges into subscriptions automatically.</div>
-            <div><strong>Auto-categorization</strong><br>Detect streaming, food, AI, gaming, music, and media.</div>
-            <div><strong>Duplicate detection</strong><br>Warn when something already exists in the audit.</div>
-            <div><strong>Full plan export</strong><br>Generate a cancel/downgrade plan people can actually follow.</div>
-          </div>
-        </div>
-
-        <div class="card" style="border-color: var(--purple-text);">
-          <h3 style="font-size:15px;margin-bottom:8px;"><i class="ti ti-building-bank"></i> Bank import roadmap</h3>
-          <div class="section-sub">The best paid version should connect to a bank securely and auto-detect recurring charges. That requires a real backend plus a bank-link provider like Plaid, Teller, Finicity, or MX — not a frontend-only file. For this MVP, keep it safer: paste charges or upload a CSV export.</div>
-          <div class="pro-list" style="margin-top:12px;">
-            <div><strong>Now</strong><br>Paste bank charges or upload a CSV from your bank/card app.</div>
-            <div><strong>Paid v2</strong><br>Connect bank, detect recurring charges, and refresh monthly.</div>
-            <div><strong>Why people pay</strong><br>No manual typing, no hunting through statements, instant audit.</div>
-            <div><strong>Trust note</strong><br>Never ask for bank passwords directly. Use a trusted bank-link provider.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3 style="font-size:15px;margin-bottom:8px;"><i class="ti ti-file-spreadsheet"></i> Upload CSV export</h3>
-          <div class="section-sub">Export transactions from your bank, Apple Card, Cash App, PayPal, or credit card as CSV, then upload it here. StackTrim will scan the text for likely subscriptions. This stays in the browser.</div>
-          <input type="file" id="csv-file" accept=".csv,.txt" style="margin-top:12px;width:100%;" onchange="handleCsvUpload(event)">
-          <div class="bulk-help">Tip: CSV support works best when each row includes a merchant/description and amount.</div>
-        </div>
-
-        <div class="card">
-          <h3 style="font-size:15px;margin-bottom:8px;">Paste charges or subscription list</h3>
-          <div class="section-sub">Works with lines like <strong>NETFLIX.COM 22.99</strong>, <strong>Spotify, 11.99</strong>, or <strong>DoorDash DashPass - $9.99</strong>. You can also include usage/pain if you know it.</div>
-          <textarea id="bulk-input" style="min-height:190px;" placeholder="NETFLIX.COM 22.99\nSPOTIFY USA 11.99\nUBER ONE 9.99\nDOORDASH DASHPASS 9.99\nOPENAI CHATGPT 20.00\nANTHROPIC CLAUDE 20.00\nHULU 17.99\nDISNEY PLUS 13.99"></textarea>
-          <div class="bulk-help">
-            Optional format: name, price, category, usage, pain, purpose. Otherwise StackTrim will guess category and defaults.
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
-            <button class="btn btn-primary" onclick="previewBulkImport()"><i class="ti ti-eye"></i> Preview detected subscriptions</button>
-            <button class="btn btn-secondary" onclick="fillBulkExample()"><i class="ti ti-sparkles"></i> Fill example</button>
-            <button class="btn btn-secondary" onclick="fillBankExample()"><i class="ti ti-receipt"></i> Fill bank-style example</button>
+        <div class="link-hero">
+          <h3><i class="ti ti-bolt"></i> Fastest: paste everything at once</h3>
+          <p>Copy from Settings → Subscriptions (iPhone), your bank app, or a notes list. One line per charge is enough.</p>
+          <textarea id="bulk-input" class="paste-box" placeholder="NETFLIX.COM 22.99&#10;SPOTIFY USA 11.99&#10;DOORDASH DASHPASS 9.99&#10;OPENAI CHATGPT 20.00&#10;HULU 17.99"></textarea>
+          <p class="limit-note">${isPro() ? 'Pro: unlimited imports.' : `Free: up to ${FREE_SUB_LIMIT} subs total · ${FREE_BULK_LINES}+ lines per paste needs Pro.`}</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+            <button class="btn btn-primary" onclick="previewBulkImport()"><i class="ti ti-eye"></i> Detect & preview</button>
+            <button class="btn btn-secondary" onclick="fillBankExample()"><i class="ti ti-receipt"></i> Bank example</button>
+            <button class="btn btn-secondary" onclick="fillBulkExample()"><i class="ti ti-sparkles"></i> Simple example</button>
           </div>
           <div id="bulk-preview"></div>
         </div>
+
+        <div class="section-title">Or tap common subscriptions</div>
+        <div class="quick-chips">${chips}</div>
+
+        <details class="card" style="margin-top:1rem;">
+          <summary style="cursor:pointer;font-weight:650;font-size:14px;">Add one manually · upload CSV ${isPro() ? '' : '(Pro)'}</summary>
+          <div style="margin-top:12px;">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label for="tool-name">Name</label>
+                <input id="tool-name" type="text" placeholder="Netflix, Spotify…" autocomplete="off" />
+              </div>
+              <div class="form-group">
+                <label for="tool-cost">$/mo</label>
+                <input id="tool-cost" type="number" min="0" step="0.01" placeholder="15" />
+              </div>
+              <div class="form-group">
+                <label for="tool-category">Category</label>
+                <select id="tool-category">
+                  ${Object.entries(CATEGORY_META).map(([key, meta]) => `<option value="${key}">${meta.label}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="tool-usage">Usage</label>
+                <select id="tool-usage">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="rarely">Rarely</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="tool-pain">Pain if removed</label>
+                <select id="tool-pain">
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="addTool()"><i class="ti ti-plus"></i> Add one</button>
+            <div style="margin-top:16px;padding-top:16px;border-top:0.5px solid var(--border);">
+              <label style="font-size:13px;font-weight:650;color:var(--text2);">CSV from bank / card</label>
+              <input type="file" id="csv-file" accept=".csv,.txt" style="margin-top:8px;width:100%;" onchange="handleCsvUpload(event)" ${isPro() ? '' : 'disabled'}>
+              ${isPro() ? '' : '<p class="limit-note">CSV import is Pro — paste text works on Free.</p>'}
+            </div>
+          </div>
+        </details>
       `;
     }
 
+    function quickAddChip(index) {
+      const q = QUICK_ADD[index];
+      if (!q) return;
+      const { name, cost, category } = q;
+      if (!requireProOrLimit(1, 'add')) return;
+      const dup = tools.some(t => t.name.toLowerCase() === name.toLowerCase());
+      if (dup) { showToast(`${name} is already in your list.`); return; }
+      const defaults = inferDefaults(category, cost, name);
+      tools.push({ id: nextId++, name, cost, category, usage: defaults.usage, pain: defaults.pain, purpose: defaults.purpose });
+      saveTools();
+      showToast(`${name} added — see Alternatives for swaps.`);
+      showTab('alternatives');
+    }
+
     function handleCsvUpload(event) {
+      if (!isPro()) {
+        showToast('CSV upload is a Pro feature. Paste text on Free.');
+        openProModal();
+        event.target.value = '';
+        return;
+      }
       const file = event.target.files && event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
@@ -1210,17 +1518,23 @@
     function confirmBulkImport() {
       const rows = getParsedBulkRows();
       if (!rows.length) { showToast('Nothing to add.'); return; }
-      let added = 0;
-      rows.forEach((r, idx) => {
+      const selected = rows.filter((r, idx) => {
         const check = document.getElementById(`bulk-check-${idx}`);
-        if (check && !check.checked) return;
-        tools.push({ id: nextId++, name: r.name, cost: r.cost, category: r.category, usage: r.usage, pain: r.pain, purpose: r.purpose });
-        added++;
+        return check && check.checked;
       });
-      if (!added) { showToast('No selected items added.'); return; }
+      if (!selected.length) { showToast('No selected items.'); return; }
+      if (!isPro() && selected.length > FREE_BULK_LINES) {
+        showToast(`Free: import up to ${FREE_BULK_LINES} per paste. Pro is unlimited.`);
+        openProModal();
+        return;
+      }
+      if (!requireProOrLimit(selected.length, 'import')) return;
+      selected.forEach(r => {
+        tools.push({ id: nextId++, name: r.name, cost: r.cost, category: r.category, usage: r.usage, pain: r.pain, purpose: r.purpose });
+      });
       saveTools();
-      showToast(`${added} subscription${added === 1 ? '' : 's'} imported.`);
-      showTab('audit');
+      showToast(`${selected.length} subscription${selected.length === 1 ? '' : 's'} linked.`);
+      showTab('alternatives');
     }
 
     function fillBankExample() {
@@ -1239,14 +1553,15 @@
       const purpose = document.getElementById('tool-purpose').value.trim();
 
       if (!name) {
-        showToast('Add a tool name first.');
+        showToast('Add a name first.');
         return;
       }
+      if (!requireProOrLimit(1, 'add')) return;
 
-      tools.push({ id: nextId++, name, cost, category, usage, pain, purpose });
+      tools.push({ id: nextId++, name, cost, category, usage, pain, purpose: purpose || categoryLabel(category).toLowerCase() });
       saveTools();
       showToast(`${name} added.`);
-      showTab('audit');
+      showTab('alternatives');
     }
 
 
@@ -1316,7 +1631,7 @@
           <div class="empty-state card">
             <i class="ti ti-report"></i>
             No tools to audit yet.<br><br>
-            <button class="btn btn-primary" onclick="showTab('add')">Add tools</button>
+            <button class="btn btn-primary" onclick="showTab('link')">Link subscriptions</button>
           </div>
         `;
         return;
@@ -1335,7 +1650,7 @@
 
       html += `
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;">
-          <button class="btn btn-secondary" onclick="showTab('add')"><i class="ti ti-plus"></i> Add another</button>
+          <button class="btn btn-secondary" onclick="showTab('link')"><i class="ti ti-link"></i> Link more</button>
           <button class="btn btn-secondary" onclick="confirmClearAll()"><i class="ti ti-trash"></i> Clear all</button>
         </div>
       `;
@@ -1383,6 +1698,7 @@
             <div class="tool-right">
               <span class="tool-cost">${money(tool.cost)}/mo</span>
               <span class="badge ${VERDICT_CLASS[verdict]}">${VERDICT_LABEL[verdict]}</span>
+              <button class="btn-delete" onclick="openEditTool(${Number(tool.id)})" aria-label="Edit ${escHtml(tool.name)}"><i class="ti ti-pencil"></i></button>
               <button class="btn-delete" onclick="deleteTool(${Number(tool.id)})" aria-label="Delete ${escHtml(tool.name)}"><i class="ti ti-x"></i></button>
             </div>
           </div>
@@ -1418,10 +1734,90 @@
       tools = demoTools.map(t => ({ ...t }));
       nextId = getNextId();
       saveTools();
-      showTab('dashboard');
-      showToast('Demo data loaded.');
+      showTab('alternatives');
+      showToast('Demo loaded — check your swaps.');
     }
 
+    function openEditTool(id) {
+      const tool = tools.find(t => Number(t.id) === Number(id));
+      if (!tool) return;
+      document.getElementById('edit-id').value = tool.id;
+      document.getElementById('edit-name').value = tool.name;
+      document.getElementById('edit-cost').value = tool.cost;
+      const catSel = document.getElementById('edit-category');
+      catSel.innerHTML = Object.entries(CATEGORY_META).map(([key, meta]) =>
+        `<option value="${key}" ${key === tool.category ? 'selected' : ''}>${meta.label}</option>`
+      ).join('');
+      document.getElementById('edit-usage').value = tool.usage;
+      document.getElementById('edit-pain').value = tool.pain;
+      document.getElementById('edit-modal').classList.add('show');
+    }
+
+    function saveEditTool() {
+      const id = Number(document.getElementById('edit-id').value);
+      const tool = tools.find(t => Number(t.id) === id);
+      if (!tool) return;
+      tool.name = document.getElementById('edit-name').value.trim() || tool.name;
+      tool.cost = parseFloat(document.getElementById('edit-cost').value) || 0;
+      tool.category = document.getElementById('edit-category').value;
+      tool.usage = document.getElementById('edit-usage').value;
+      tool.pain = document.getElementById('edit-pain').value;
+      saveTools();
+      closeModal('edit-modal');
+      showToast('Saved.');
+      const active = document.querySelector('#main-nav button.active')?.dataset?.tab;
+      showTab(active || 'audit');
+    }
+
+    function renderPersonalSwaps() {
+      if (!tools.length) {
+        return `
+          <div class="empty-state card">
+            <i class="ti ti-switch-horizontal"></i>
+            <strong>Link subscriptions first</strong><br>
+            Paste your list on the Link tab — we will match each one with cheaper options.<br><br>
+            <button class="btn btn-primary" onclick="showTab('link')"><i class="ti ti-link"></i> Link subscriptions</button>
+          </div>`;
+      }
+
+      const candidates = [...tools]
+        .filter(t => verdictFromScore(scoreTool(t)) !== 'keep')
+        .sort((a, b) => scoreTool(a) - scoreTool(b));
+
+      const list = candidates.length ? candidates : [...tools].sort((a, b) => Number(b.cost || 0) - Number(a.cost || 0)).slice(0, 4);
+
+      let html = `<div class="section-title">Your swap list</div>
+        <div class="section-sub">Personalized alternatives for subscriptions you should review, downgrade, or replace.</div>`;
+
+      list.forEach(tool => {
+        const verdict = verdictFromScore(scoreTool(tool));
+        const alts = (ALTERNATIVES[tool.category] || ALTERNATIVES.other).slice(0, 3);
+        const meta = CATEGORY_META[tool.category] || CATEGORY_META.other;
+        html += `
+          <div class="swap-card">
+            <div class="swap-header">
+              <div>
+                <div class="swap-from"><i class="ti ${meta.icon}"></i> ${escHtml(tool.name)} · ${money(tool.cost)}/mo</div>
+                <div class="tool-meta" style="margin-top:4px;">${escHtml(categoryLabel(tool.category))} · ${escHtml(reasonFor(tool))}</div>
+              </div>
+              <span class="badge ${VERDICT_CLASS[verdict]}">${VERDICT_LABEL[verdict]}</span>
+            </div>
+            <div class="swap-alts">
+              ${alts.map(alt => `
+                <div class="swap-alt-item">
+                  <i class="ti ti-arrow-right" style="color:var(--green-text);margin-top:3px;"></i>
+                  <div>
+                    <strong>${escHtml(alt.price)}</strong>
+                    <div><strong>${escHtml(alt.name)}</strong> — ${escHtml(alt.desc)}</div>
+                    <a href="${escHtml(alt.url)}" target="_blank" rel="noopener noreferrer" style="color:var(--blue-text);font-size:12px;">Open →</a>
+                  </div>
+                </div>`).join('')}
+            </div>
+          </div>`;
+      });
+
+      return html;
+    }
 
     function renderSmartSavingsPlans() {
       if (!tools.length) return '';
@@ -1463,13 +1859,12 @@
       const defaultList = ['food', 'streaming', 'music', 'ai', 'media', 'gaming'];
       const list = categories.length ? categories : defaultList;
 
-      let html = `
-        <div class="section-title">Cheaper alternatives</div>
-        <div class="section-sub">
-          StackTrim now focuses on normal everyday subscriptions too: food delivery, streaming, music, media, gaming, AI, and software. Suggestions change based on the category and how much that category costs you.
-        </div>
-        ${renderPayValueSection()}
-        ${renderSmartSavingsPlans()}
+      let html = renderPersonalSwaps();
+      html += renderPayValueSection();
+      html += renderSmartSavingsPlans();
+      html += `
+        <div class="section-title" style="margin-top:1.25rem;">Browse by category</div>
+        <div class="section-sub">More ideas for streaming, food delivery, AI, music, gaming, and everyday apps.</div>
         <div class="alt-grid">
       `;
 
@@ -1532,12 +1927,13 @@
 
     function renderPayValueSection() {
       const total = tools.reduce((sum, t) => sum + Number(t.cost || 0), 0);
-      const savings = calcSavings();
+      const savings = calcSavings(false);
+      if (isPro()) return '';
       return `
-        <div class="value-grid">
-          <div class="value-card"><i class="ti ti-list-check"></i><strong>Bulk audit</strong><span>People pay because they do not want to manually enter 20–40 charges. Paste once, preview, add all.</span></div>
-          <div class="value-card"><i class="ti ti-calendar-dollar"></i><strong>Saving plans</strong><span>Streaming rotation, food delivery break-even checks, AI overlap cleanup, and downgrade-first rules.</span></div>
-          <div class="value-card"><i class="ti ti-lock-dollar"></i><strong>Paid upgrade idea</strong><span>Free: 5 manual items. Pro one-time $9: unlimited bulk import, duplicate detection, full report, reminders, and exports. Current spend: ${money(total)}/mo, possible cuts: ${money(savings)}/mo.</span></div>
+        <div class="value-grid" style="margin-top:1rem;">
+          <div class="value-card"><i class="ti ti-clock"></i><strong>Save time</strong><span>Paste 20+ charges once instead of typing each sub. That is what Pro is for.</span></div>
+          <div class="value-card"><i class="ti ti-coin"></i><strong>Save money</strong><span>You track ${money(total)}/mo now — up to ${money(savings)}/mo in possible cuts with swaps above.</span></div>
+          <div class="value-card"><i class="ti ti-crown"></i><strong>Pro — $9 once</strong><span>Unlimited subs, CSV import, backup, full export. <button class="btn btn-primary btn-small" style="margin-top:8px;" onclick="openProModal()">Upgrade</button></span></div>
         </div>`;
     }
 
@@ -1629,7 +2025,12 @@ Generated by StackTrim.`;
         <div class="section-sub">Copy or download your audit. This is useful for saving a snapshot before clearing browser data.</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
           <button class="btn btn-primary" onclick="copyReport()"><i class="ti ti-copy"></i> Copy report</button>
-          <button class="btn btn-secondary" onclick="downloadReport()"><i class="ti ti-download"></i> Download .txt</button>
+          <button class="btn btn-secondary" onclick="downloadReport()"><i class="ti ti-download"></i> Download .txt ${isPro() ? '' : '(Pro)'}</button>
+          <button class="btn btn-secondary" onclick="exportBackup()"><i class="ti ti-database-export"></i> Backup JSON ${isPro() ? '' : '(Pro)'}</button>
+          <label class="btn btn-secondary" style="cursor:pointer;">
+            <i class="ti ti-database-import"></i> Restore
+            <input type="file" accept=".json" style="display:none;" onchange="importBackup(event)" ${isPro() ? '' : 'disabled'}>
+          </label>
         </div>
         <div class="report-block">${escHtml(report)}</div>
       `;
@@ -1642,6 +2043,11 @@ Generated by StackTrim.`;
     }
 
     function downloadReport() {
+      if (!isPro()) {
+        showToast('Download & backup are Pro — copy still works free.');
+        openProModal();
+        return;
+      }
       const blob = new Blob([buildReport()], { type: 'text/plain' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -1649,6 +2055,40 @@ Generated by StackTrim.`;
       link.click();
       URL.revokeObjectURL(link.href);
       showToast('Report downloaded.');
+    }
+
+    function exportBackup() {
+      if (!isPro()) { openProModal(); showToast('Backup is Pro.'); return; }
+      const payload = { version: 3, tools, exported: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'stacktrim-backup.json';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      showToast('Backup downloaded.');
+    }
+
+    function importBackup(event) {
+      if (!isPro()) { openProModal(); return; }
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(String(reader.result || '{}'));
+          const incoming = Array.isArray(data.tools) ? data.tools : Array.isArray(data) ? data : [];
+          if (!incoming.length) throw new Error('empty');
+          tools = incoming.map((t, i) => ({ ...t, id: Number(t.id) || i + 1 }));
+          nextId = getNextId();
+          saveTools();
+          showToast('Backup restored.');
+          showTab('alternatives');
+        } catch {
+          showToast('Invalid backup file.');
+        }
+      };
+      reader.readAsText(file);
     }
 
     function showToast(message) {
@@ -1663,14 +2103,14 @@ Generated by StackTrim.`;
       document.getElementById('privacy-modal').classList.add('show');
     }
 
-    function closePrivacyModal(event) {
-      if (event.target.id === 'privacy-modal') {
-        document.getElementById('privacy-modal').classList.remove('show');
-      }
+    function initApp() {
+      updateProUI();
+      if (!tools.length) showTab('link');
+      else showTab('dashboard');
+      updateHeroSavings();
     }
 
-    showTab('dashboard');
-    updateHeroSavings();
+    initApp();
   </script>
 </body>
 </html>
